@@ -1,0 +1,33 @@
+{# templates/emprunt/new.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel Emprunt - Bibliothèque{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Nouvel emprunt</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Créez un nouvel emprunt de livre</p>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-white/60 to-white/30 dark:from-gray-800/60 dark:to-gray-800/40 backdrop-blur p-1">
+        <div class="bg-white/80 dark:bg-gray-900/70 rounded-2xl p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Informations de l'emprunt</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Remplissez les informations ci-dessous pour créer l'emprunt.</p>
+                </div>
+            </div>
+
+            <div>
+                {{ include('emprunt/_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

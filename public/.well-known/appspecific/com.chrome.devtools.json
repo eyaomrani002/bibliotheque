@@ -1,0 +1,5 @@
+{
+  "name": "com.chrome.devtools",
+  "description": "Marker file for Chrome DevTools workspace integration. Not used by the app; created to silence 404 logs.",
+  "version": 1
+}

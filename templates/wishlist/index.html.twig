@@ -1,0 +1,148 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Wishlists - Biblio-Symfony{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-heart text-white text-xl"></i>
+                        </div>
+                        Mes Wishlists
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">Gérer vos listes de souhaits</p>
+                </div>
+                <a href="{{ path('app_wishlist_new') }}" 
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-plus"></i>
+                    Nouvelle wishlist
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+            {% if wishlists is not empty %}
+                <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for wishlist in wishlists %}
+                        <div class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                <div class="flex-1">
+                                    <div class="flex items-start gap-4">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-rose-500 rounded-2xl flex flex-col items-center justify-center text-white font-bold">
+                                                <i class="fas fa-heart"></i>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">Wishlist #{{ wishlist.id }}</h3>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{ wishlist.user ? wishlist.user.email : 'Propriétaire inconnu' }}</span>
+                                            </div>
+
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                Ajoutée le {{ wishlist.dateAjout ? wishlist.dateAjout|date('d/m/Y H:i') : '-' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2 lg:flex-col lg:items-end">
+                                    <a href="{{ path('app_wishlist_show', {'id': wishlist.id}) }}"
+                                       class="inline-flex items-center justify-center w-10 h-10 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                                       title="Voir" aria-label="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <a href="{{ path('app_wishlist_edit', {'id': wishlist.id}) }}"
+                                       class="inline-flex items-center justify-center w-10 h-10 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                                       title="Modifier" aria-label="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <button onclick="openWishlistDeleteModal({{ wishlist.id }})"
+                                            class="inline-flex items-center justify-center w-10 h-10 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                                            title="Supprimer" aria-label="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+
+                                {{ include('wishlist/_delete_form.html.twig', {'wishlist': wishlist}) }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-16">
+                    <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-heart text-rose-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Aucune wishlist trouvée</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">Créez une wishlist pour garder vos livres favoris à portée de main.</p>
+                    <a href="{{ path('app_wishlist_new') }}" 
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-plus"></i>
+                        Nouvelle wishlist
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal de suppression -->
+    <div id="wishlistDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Supprimer la wishlist</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">Êtes-vous sûr de vouloir supprimer cette wishlist ? Cette action est irréversible.</p>
+                <div class="flex gap-3 justify-center">
+                    <button onclick="closeWishlistDeleteModal()" class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Annuler</button>
+                    <form id="wishlistDeleteForm" method="post" class="inline">
+                        <input type="hidden" name="_token" value="">
+                        <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">Confirmer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+function openWishlistDeleteModal(wishlistId) {
+    const modal = document.getElementById('wishlistDeleteModal');
+    const form = document.getElementById('wishlistDeleteForm');
+    const csrfToken = document.querySelector(`[data-wishlist-id="${wishlistId}"]`)?.dataset.token;
+
+    form.action = `/wishlist/${wishlistId}`;
+    form.querySelector('input[name="_token"]').value = csrfToken;
+    modal.classList.remove('hidden');
+}
+
+function closeWishlistDeleteModal() {
+    const modal = document.getElementById('wishlistDeleteModal');
+    modal.classList.add('hidden');
+}
+
+// Fermer la modal en cliquant à l'extérieur
+document.addEventListener('click', function(e){
+    const modal = document.getElementById('wishlistDeleteModal');
+    if (!modal) return;
+    if (e.target === modal) closeWishlistDeleteModal();
+});
+</script>
+<style>
+.transition-colors { transition: background-color 0.2s ease, color 0.2s ease; }
+</style>
+{% endblock %}
+
+{% endblock %}

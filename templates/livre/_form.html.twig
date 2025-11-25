@@ -1,0 +1,167 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {# Champ Titre #}
+        <div class="space-y-2">
+            {{ form_label(form.titre, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+            {{ form_widget(form.titre, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+            {{ form_errors(form.titre) }}
+        </div>
+
+        {# Champ ISBN #}
+        <div class="space-y-2">
+            {{ form_label(form.isbn, 'ISBN', {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+            {{ form_widget(form.isbn, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+            {{ form_errors(form.isbn) }}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {# Champ Quantité #}
+        <div class="space-y-2">
+            {{ form_label(form.qte, 'Quantité', {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+            {{ form_widget(form.qte, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+            {{ form_errors(form.qte) }}
+        </div>
+
+        {# Champ Prix #}
+        <div class="space-y-2">
+            {{ form_label(form.prix, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+            {{ form_widget(form.prix, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+            {{ form_errors(form.prix) }}
+        </div>
+
+        {# Champ Nombre de pages - CORRIGÉ #}
+        <div class="space-y-2">
+            {# ESSAYEZ D'ABORD form.nbPages (camelCase) #}
+            {% if form.nbPages is defined %}
+                {{ form_label(form.nbPages, 'Nb. Pages', {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+                {{ form_widget(form.nbPages, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+                {{ form_errors(form.nbPages) }}
+            {% elseif form.nbpages is defined %}
+                {# SINON form.nbpages (snake_case) #}
+                {{ form_label(form.nbpages, 'Nb. Pages', {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+                {{ form_widget(form.nbpages, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+                {{ form_errors(form.nbpages) }}
+            {% else %}
+                {# SI AUCUN DES DEUX, affichez un message d'erreur clair #}
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Erreur :</strong> Le champ "nbpages" ou "nbPages" n'existe pas dans le formulaire.
+                    <br>Vérifiez votre <code>LivreType.php</code>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Champ Langue #}
+        <div class="space-y-2">
+            {{ form_label(form.langue, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+            {{ form_widget(form.langue, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+            {{ form_errors(form.langue) }}
+        </div>
+    </div>
+
+    {# Champ Date de publication #}
+    <div class="space-y-2">
+        {{ form_label(form.datpub, 'Date de publication', {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+        {{ form_widget(form.datpub, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'}}) }}
+        {{ form_errors(form.datpub) }}
+    </div>
+
+    {# Champ Résumé #}
+    <div class="space-y-2">
+        {{ form_label(form.resume, 'Résumé', {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+        {{ form_widget(form.resume, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 min-h-[150px]'}}) }}
+        {{ form_errors(form.resume) }}
+    </div>
+{# === CHAMP IMAGE DE COUVERTURE === #}
+<div class="space-y-4 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+        Image de couverture
+    </label>
+
+    <div class="flex items-start gap-8">
+        {# Aperçu actuel (seulement en édition) #}
+        {% if livre.image %}
+            <div class="flex-shrink-0">
+                <img src="{{ asset('uploads/livres/' ~ livre.image) }}" 
+                     alt="Couverture actuelle" 
+                     class="h-48 w-36 object-cover rounded-lg shadow-xl border-4 border-white dark:border-gray-800">
+                <p class="text-xs text-gray-500 text-center mt-2">Image actuelle</p>
+            </div>
+        {% endif %}
+
+        <div class="flex-1">
+            {# CORRECTION ICI : on utilise directement form.imageFile #}
+            {{ form_row(form.imageFile, {
+                'attr': {
+                    'class': 'block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none p-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700'
+                },
+                'label': false
+            }) }}
+
+            <p class="text-xs text-gray-500 mt-3">
+                Formats acceptés : JPG, PNG, WebP • Max 5 Mo
+            </p>
+        </div>
+    </div>
+
+    {# Option : cocher pour supprimer l'image #}
+    {% if livre.image %}
+        <div class="mt-4">
+            <label class="flex items-center gap-3 cursor-pointer text-sm text-red-600">
+                <input type="checkbox" name="delete_image" class="w-4 h-4 text-red-600 rounded">
+                <span>Supprimer l'image actuelle</span>
+            </label>
+        </div>
+    {% endif %}
+</div>
+    {# Bouton Submit #}
+{# === CHAMP PDF === #}
+<div class="space-y-4 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 mt-6">
+    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+        Fichier PDF
+    </label>
+
+    <div class="flex items-start gap-8">
+        {% if livre.pdf %}
+            <div class="flex-shrink-0">
+                <a href="{{ asset('uploads/livres/' ~ livre.pdf) }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-md bg-blue-600 text-white">
+                    <i class="fas fa-file-pdf mr-2"></i>Fichier PDF actuel
+                </a>
+                <p class="text-xs text-gray-500 text-center mt-2">PDF actuel</p>
+            </div>
+        {% endif %}
+
+        <div class="flex-1">
+            {{ form_row(form.pdfFile, {
+                'attr': {
+                    'class': 'block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none p-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700'
+                },
+                'label': false
+            }) }}
+
+            <p class="text-xs text-gray-500 mt-3">
+                Format accepté : PDF • Max 20 Mo
+            </p>
+        </div>
+    </div>
+
+    {% if livre.pdf %}
+        <div class="mt-4">
+            <label class="flex items-center gap-3 cursor-pointer text-sm text-red-600">
+                <input type="checkbox" name="delete_pdf" class="w-4 h-4 text-red-600 rounded">
+                <span>Supprimer le PDF actuel</span>
+            </label>
+        </div>
+    {% endif %}
+</div>
+    <div class="pt-6">
+        <button type="submit" 
+                class="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
+            <i class="fas fa-save"></i>
+            <span>{{ button_label|default('Enregistrer') }}</span>
+        </button>
+    </div>
+
+{{ form_end(form) }}

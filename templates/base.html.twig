@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Biblio-Symfony{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    {# VÉRIFIEZ si vous êtes admin (garder la variable si utilisée ailleurs) #}
+    {% set isAdmin = app.user and 'ROLE_ADMIN' in app.user.roles %}
+
+    {# Utiliser la même sidebar pour tous les utilisateurs (admin ou non) #}
+    {% include 'sidebarBack.html.twig' %}
+
+    {# Notifications: included inside the top-right icons block in `sidebarBack.html.twig` to avoid overlap #}
+
+    {# CONTENU PRINCIPAL #}
+    <main class="lg:ml-64 pt-16 min-h-screen transition-all duration-300">
+        {% block body %}{% endblock %}
+    </main>
+
+    {# Flash messages améliorés #}
+    <div id="flash-messages" class="fixed top-20 right-4 z-50 space-y-2 max-w-sm">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-message animate-fade-in-up bg-{{ 
+                    label == 'success' ? 'green' : 
+                    (label == 'error' ? 'red' : 
+                    (label == 'warning' ? 'yellow' : 'blue')) 
+                }}-50 border-l-4 border-{{ 
+                    label == 'success' ? 'green' : 
+                    (label == 'error' ? 'red' : 
+                    (label == 'warning' ? 'yellow' : 'blue')) 
+                }}-500 p-4 rounded-lg shadow-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-{{ 
+                                label == 'success' ? 'check-circle' : 
+                                (label == 'error' ? 'exclamation-circle' : 
+                                (label == 'warning' ? 'exclamation-triangle' : 'info-circle')) 
+                            }} text-{{ 
+                                label == 'success' ? 'green' : 
+                                (label == 'error' ? 'red' : 
+                                (label == 'warning' ? 'yellow' : 'blue')) 
+                            }}-500"></i>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm text-{{ 
+                                label == 'success' ? 'green' : 
+                                (label == 'error' ? 'red' : 
+                                (label == 'warning' ? 'yellow' : 'blue')) 
+                            }}-800">{{ message }}</p>
+                        </div>
+                        <button type="button" class="ml-4 flex-shrink-0 text-{{ 
+                            label == 'success' ? 'green' : 
+                            (label == 'error' ? 'red' : 
+                            (label == 'warning' ? 'yellow' : 'blue')) 
+                        }}-400 hover:text-{{ 
+                            label == 'success' ? 'green' : 
+                            (label == 'error' ? 'red' : 
+                            (label == 'warning' ? 'yellow' : 'blue')) 
+                        }}-600" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+
+    {% block javascripts %}
+        <script>
+            // Auto-remove flash messages after 5 seconds
+            document.addEventListener('DOMContentLoaded', function() {
+                // Auto-remove flash messages
+                setTimeout(() => {
+                    document.querySelectorAll('.flash-message').forEach(message => {
+                        message.style.opacity = '0';
+                        message.style.transform = 'translateX(100%)';
+                        setTimeout(() => message.remove(), 300);
+                    });
+                }, 5000);
+
+                // Gestion des suppressions avec SweetAlert
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        e.preventDefault();
+                        const form = btn.closest('form');
+                        Swal.fire({
+                            title: 'Êtes-vous sûr ?',
+                            text: "Cette action est irréversible !",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Oui, supprimer',
+                            cancelButtonText: 'Annuler',
+                            reverseButtons: true
+                        }).then(result => {
+                            if (result.isConfirmed) form.submit();
+                        });
+                    });
+                });
+
+                // Gestion de la sidebar mobile
+                window.toggleSidebar = function() {
+                    const sidebar = document.getElementById('sidebar');
+                    const overlay = document.getElementById('sidebarOverlay');
+                    if (sidebar && overlay) {
+                        sidebar.classList.toggle('-translate-x-full');
+                        overlay.classList.toggle('hidden');
+                        document.body.classList.toggle('overflow-hidden');
+                    }
+                }
+
+                // Auto-hide sidebar on mobile when resizing
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 1024) {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('sidebarOverlay');
+                        if (sidebar) sidebar.classList.remove('-translate-x-full');
+                        if (overlay) overlay.classList.add('hidden');
+                        document.body.classList.remove('overflow-hidden');
+                    }
+                });
+
+                // Close sidebar when clicking on a link (mobile)
+                document.querySelectorAll('#sidebar a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth < 1024) {
+                            toggleSidebar();
+                        }
+                    });
+                });
+            });
+        </script>
+    {% endblock %}
+</body>
+</html>

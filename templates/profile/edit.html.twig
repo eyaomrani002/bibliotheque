@@ -1,0 +1,289 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">👤 Modifier mon profil</h1>
+            <p class="text-lg text-gray-600">Mettez à jour vos informations personnelles</p>
+        </div>
+
+        <!-- Carte du formulaire -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <!-- En-tête de la carte -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                <h2 class="text-xl font-semibold text-white">Informations personnelles</h2>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="p-6">
+                {{ form_start(profileForm, {'attr': {'class': 'space-y-6'}}) }}
+                    
+                    <!-- Messages flash -->
+                    {% for message in app.flashes('success') %}
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-green-800">{{ message }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <!-- Grille responsive -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Prénom -->
+                        <div>
+                            {{ form_label(profileForm.prenom, null, {
+                                'label_attr': {
+                                    'class': 'block text-sm font-medium text-gray-700 mb-2'
+                                }
+                            }) }}
+                            <div class="relative">
+                                {{ form_widget(profileForm.prenom, {
+                                    'attr': {
+                                        'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200',
+                                        'placeholder': 'Votre prénom'
+                                    }
+                                }) }}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            {{ form_errors(profileForm.prenom) }}
+                        </div>
+
+                        <!-- Nom -->
+                        <div>
+                            {{ form_label(profileForm.nom, null, {
+                                'label_attr': {
+                                    'class': 'block text-sm font-medium text-gray-700 mb-2'
+                                }
+                            }) }}
+                            <div class="relative">
+                                {{ form_widget(profileForm.nom, {
+                                    'attr': {
+                                        'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200',
+                                        'placeholder': 'Votre nom'
+                                    }
+                                }) }}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            {{ form_errors(profileForm.nom) }}
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        {{ form_label(profileForm.email, null, {
+                            'label_attr': {
+                                'class': 'block text-sm font-medium text-gray-700 mb-2'
+                            }
+                        }) }}
+                        <div class="relative">
+                            {{ form_widget(profileForm.email, {
+                                'attr': {
+                                    'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200',
+                                    'placeholder': 'votre@email.com'
+                                }
+                            }) }}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        {{ form_errors(profileForm.email) }}
+                    </div>
+
+                    <!-- Téléphone -->
+                    <div>
+                        {{ form_label(profileForm.telephone, null, {
+                            'label_attr': {
+                                'class': 'block text-sm font-medium text-gray-700 mb-2'
+                            }
+                        }) }}
+                        <div class="relative">
+                            {{ form_widget(profileForm.telephone, {
+                                'attr': {
+                                    'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200',
+                                    'placeholder': '+33 1 23 45 67 89'
+                                }
+                            }) }}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        {{ form_errors(profileForm.telephone) }}
+                    </div>
+
+                    <!-- Section mot de passe -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">🔒 Changer le mot de passe</h3>
+                        <p class="text-sm text-gray-500 mb-4">Laissez vide si vous ne souhaitez pas modifier votre mot de passe</p>
+                        
+                        <!-- Mot de passe actuel (requis si changement) -->
+                        <div class="mb-4">
+                            {{ form_label(profileForm.currentPassword, null, {
+                                'label_attr': {
+                                    'class': 'block text-sm font-medium text-gray-700 mb-2'
+                                }
+                            }) }}
+                            <div class="relative">
+                                {{ form_widget(profileForm.currentPassword, {
+                                    'attr': {
+                                        'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200',
+                                        'placeholder': 'Mot de passe actuel'
+                                    }
+                                }) }}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            {{ form_errors(profileForm.currentPassword) }}
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Nouveau mot de passe -->
+                            <div>
+                                {{ form_label(profileForm.plainPassword.first, null, {
+                                    'label_attr': {
+                                        'class': 'block text-sm font-medium text-gray-700 mb-2'
+                                    }
+                                }) }}
+                                <div class="relative">
+                                    {{ form_widget(profileForm.plainPassword.first, {
+                                        'attr': {
+                                            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200',
+                                            'placeholder': 'Nouveau mot de passe'
+                                        }
+                                    }) }}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                {{ form_errors(profileForm.plainPassword.first) }}
+                            </div>
+
+                            <!-- Confirmation mot de passe -->
+                            <div>
+                                {{ form_label(profileForm.plainPassword.second, null, {
+                                    'label_attr': {
+                                        'class': 'block text-sm font-medium text-gray-700 mb-2'
+                                    }
+                                }) }}
+                                <div class="relative">
+                                    {{ form_widget(profileForm.plainPassword.second, {
+                                        'attr': {
+                                            'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200',
+                                            'placeholder': 'Confirmer le mot de passe'
+                                        }
+                                    }) }}
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                {{ form_errors(profileForm.plainPassword.second) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+                        <button type="submit" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm flex-1 sm:flex-none">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Enregistrer les modifications
+                        </button>
+                        
+                        <a href="{{ path('app_profile_edit') }}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm flex-1 sm:flex-none">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            Retour au profil
+                        </a>
+                    </div>
+
+                {{ form_end(profileForm) }}
+            </div>
+        </div>
+
+        <!-- Informations supplémentaires -->
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-500">
+                Dernière mise à jour : 
+                <span class="font-medium">
+                    {{ "now"|date('d/m/Y à H:i') }}
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Styles supplémentaires -->
+<style>
+    .form-error {
+        @apply mt-1 text-sm text-red-600;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+        @apply outline-none ring-2 ring-blue-500 ring-opacity-50;
+    }
+    
+    /* Animation pour les erreurs */
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+</style>
+
+<!-- Script pour les animations d'erreur -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('invalid', function() {
+            this.classList.add('shake');
+            setTimeout(() => this.classList.remove('shake'), 500);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('shake')) {
+                this.classList.remove('shake');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

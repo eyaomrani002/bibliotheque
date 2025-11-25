@@ -1,0 +1,58 @@
+{# templates/emprunt/_form.html.twig #}
+{{ form_start(form, {'attr': {'class': 'space-y-6 bg-white/70 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl shadow-xl p-6'}}) }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% if form.user is defined %}
+            {{ form_row(form.user, {
+                'attr': {
+                    'class': 'w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors'
+                },
+                'row_attr': {'class': 'md:col-span-2'}
+            }) }}
+        {% endif %}
+
+        {{ form_row(form.livre, {
+            'attr': {
+                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors'
+            },
+            'row_attr': {'class': 'md:col-span-2'}
+        }) }}
+
+        {{ form_row(form.dateEmprunt, {
+            'attr': {
+                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors'
+            }
+        }) }}
+
+        {{ form_row(form.dateRetourPrevue, {
+            'attr': {
+                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors'
+            }
+        }) }}
+
+        {{ form_row(form.statut, {
+            'attr': {
+                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors'
+            }
+        }) }}
+
+        {{ form_row(form.notes, {
+            'attr': {
+                'class': 'w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors resize-none',
+                'rows': 4,
+                'placeholder': 'Notes optionnelles...'
+            },
+            'row_attr': {'class': 'md:col-span-2'}
+        }) }}
+    </div>
+
+    <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+        <a href="{{ path('app_emprunt_index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/60 backdrop-blur border border-gray-200 rounded-full hover:shadow-md dark:bg-gray-800/60 dark:text-gray-300 dark:border-gray-700 transition-all">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Retour
+        </a>
+        <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-full shadow-2xl hover:opacity-95 transition-all">
+            <i class="fas fa-{{ button_label|default('Enregistrer') == 'Enregistrer' ? 'save' : 'edit' }} mr-2"></i>
+            {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
+{{ form_end(form) }}

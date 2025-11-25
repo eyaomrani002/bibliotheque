@@ -1,0 +1,168 @@
+{# templates/contact/my_edit.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon message - Bibliothèque{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center gap-4 bg-white dark:bg-gray-800 px-8 py-4 rounded-2xl shadow-lg mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-edit text-white text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Modifier mon message</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">Modifiez votre message avant qu'il ne soit traité</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-yellow-500 to-orange-600 px-6 py-4">
+                <h2 class="text-xl font-semibold text-white flex items-center gap-3">
+                    <i class="fas fa-edit"></i>
+                    Modification du message #{{ contact.id }}
+                </h2>
+            </div>
+
+            <div class="p-6">
+                {{ form_start(form, { 
+                    'attr': { 
+                        'class': 'space-y-6',
+                        'novalidate': 'novalidate'
+                    } 
+                }) }}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Nom -->
+                        <div>
+                            {{ form_label(form.nom, 'Nom *', {
+                                'label_attr': {
+                                    'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                                }
+                            }) }}
+                            <div class="relative">
+                                {{ form_widget(form.nom, {
+                                    'attr': {
+                                        'class': 'w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors placeholder-gray-400',
+                                        'placeholder': 'Votre nom de famille'
+                                    }
+                                }) }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                </div>
+                            </div>
+                            {{ form_errors(form.nom) }}
+                        </div>
+
+                        <!-- Prénom -->
+                        <div>
+                            {{ form_label(form.prenom, 'Prénom *', {
+                                'label_attr': {
+                                    'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                                }
+                            }) }}
+                            <div class="relative">
+                                {{ form_widget(form.prenom, {
+                                    'attr': {
+                                        'class': 'w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors placeholder-gray-400',
+                                        'placeholder': 'Votre prénom'
+                                    }
+                                }) }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-signature text-gray-400"></i>
+                                </div>
+                            </div>
+                            {{ form_errors(form.prenom) }}
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        {{ form_label(form.email, 'Adresse email *', {
+                            'label_attr': {
+                                'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                            }
+                        }) }}
+                        <div class="relative">
+                            {{ form_widget(form.email, {
+                                'attr': {
+                                    'class': 'w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors placeholder-gray-400',
+                                    'placeholder': 'exemple@email.com'
+                                }
+                            }) }}
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Nous vous répondrons à cette adresse
+                        </p>
+                        {{ form_errors(form.email) }}
+                    </div>
+
+                    <!-- Sujet -->
+                    <div>
+                        {{ form_label(form.sujet, 'Sujet du message', {
+                            'label_attr': {
+                                'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                            }
+                        }) }}
+                        <div class="relative">
+                            {{ form_widget(form.sujet, {
+                                'attr': {
+                                    'class': 'w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors placeholder-gray-400',
+                                    'placeholder': 'Objet de votre message...'
+                                }
+                            }) }}
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-tag text-gray-400"></i>
+                            </div>
+                        </div>
+                        {{ form_errors(form.sujet) }}
+                    </div>
+
+                    <!-- Message -->
+                    <div>
+                        {{ form_label(form.message, 'Votre message *', {
+                            'label_attr': {
+                                'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                            }
+                        }) }}
+                        <div class="relative">
+                            {{ form_widget(form.message, {
+                                'attr': {
+                                    'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors placeholder-gray-400 resize-none',
+                                    'rows': 6,
+                                    'placeholder': 'Décrivez votre demande en détail...'
+                                }
+                            }) }}
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Soyez précis pour que nous puissions mieux vous aider
+                        </p>
+                        {{ form_errors(form.message) }}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-600">
+                        <a href="{{ path('app_contact_my') }}" class="inline-flex items-center gap-2 px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors font-medium">
+                            <i class="fas fa-arrow-left"></i>
+                            Retour à mes messages
+                        </a>
+                        <div class="flex items-center gap-3">
+                            <button type="submit" class="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg transition-all transform hover:scale-105">
+                                <i class="fas fa-save"></i>
+                                Enregistrer les modifications
+                            </button>
+                        </div>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

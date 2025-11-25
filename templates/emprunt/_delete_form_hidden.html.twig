@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_emprunt_delete', {'id': emprunt.id}) }}"
+      data-emprunt-id="{{ emprunt.id }}"
+      data-token="{{ csrf_token('delete' ~ emprunt.id) }}"
+      class="hidden">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ emprunt.id) }}">
+</form>

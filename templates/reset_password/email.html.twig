@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0; 
+            padding: 20px;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 20px; 
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            padding: 40px 30px; 
+            text-align: center; 
+            color: white;
+        }
+        .content { 
+            padding: 40px 30px; 
+        }
+        .button { 
+            display: inline-block; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            text-decoration: none; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            margin: 20px 0; 
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+        .button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        .footer { 
+            background: #f8f9fa; 
+            padding: 20px 30px; 
+            text-align: center; 
+            color: #6c757d; 
+            font-size: 14px;
+            border-top: 1px solid #e9ecef;
+        }
+        .warning { 
+            background: #fff3cd; 
+            border: 1px solid #ffeaa7; 
+            border-radius: 10px; 
+            padding: 15px; 
+            margin: 20px 0; 
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0; font-size: 28px;">🔐 Réinitialisation de mot de passe</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Biblio-Symfony</p>
+        </div>
+        
+        <div class="content">
+            <h2 style="color: #667eea; margin-top: 0;">Bonjour !</h2>
+            
+            <p>Vous avez demandé la réinitialisation de votre mot de passe pour votre compte Biblio-Symfony.</p>
+            
+            <p style="text-align: center;">
+                <a href="{{ url('app_reset_password', {token: resetToken.token}) }}" class="button">
+                    🔑 Réinitialiser mon mot de passe
+                </a>
+            </p>
+            
+            <p>Ou copiez-collez ce lien dans votre navigateur :</p>
+            <p style="background: #f8f9fa; padding: 15px; border-radius: 10px; word-break: break-all; font-size: 14px;">
+                {{ url('app_reset_password', {token: resetToken.token}) }}
+            </p>
+            
+            <div class="warning">
+                <strong>⏰ Important :</strong> Ce lien expirera dans 
+                <strong>{{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}</strong>.
+            </div>
+            
+            <p>Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet email.</p>
+        </div>
+        
+        <div class="footer">
+            <p>© {{ "now"|date("Y") }} Biblio-Symfony. Tous droits réservés.</p>
+            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+        </div>
+    </div>
+</body>
+</html>

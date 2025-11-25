@@ -1,0 +1,141 @@
+<!-- Sidebar Admin Moderne -->
+{# Auth icons fixed top-right (visible on large screens) #}
+<div class="fixed top-4 right-4 z-50 hidden lg:flex items-center gap-3">
+  {% if app.user %}
+    {# Notifications included inline so the bell shares this top-right container #}
+    {% include '_notifications.html.twig' with {'inline': true} %}
+    <a href="{{ path('app_profile_edit') }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-800/80 text-white hover:bg-slate-700" title="Mon profil">
+      <i class="fas fa-user"></i>
+    </a>
+    <a href="{{ path('app_logout') }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-600 text-white hover:bg-red-700" title="Déconnexion">
+      <i class="fas fa-sign-out-alt"></i>
+    </a>
+  {% else %}
+    <a href="{{ path('app_login') }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white hover:bg-indigo-700" title="Connexion">
+      <i class="fas fa-sign-in-alt"></i>
+    </a>
+    <a href="{{ path('app_register') }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-500 text-white hover:bg-indigo-600" title="Inscription">
+      <i class="fas fa-user-plus"></i>
+    </a>
+  {% endif %}
+</div>
+
+<div class="fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 shadow-2xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 -translate-x-full" id="sidebar">
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between h-16 px-4 border-b border-slate-800">
+      <a href="{{ path('app_accueil') }}" class="flex items-center space-x-3 group">
+        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+          <i class="bi bi-speedometer2"></i>
+        </div>
+        <div>
+          <div class="text-white font-bold">Admin</div>
+          <div class="text-slate-400 text-xs">Bibliothèque</div>
+        </div>
+      </a>
+      {# Notifications + toggle #}
+      {# <div class="flex items-center gap-2">
+        {% include '_notifications.html.twig' with {'in_sidebar': true} %}
+        <button type="button" class="lg:hidden text-slate-400 hover:text-white" onclick="toggleSidebar()">
+          <i class="fas fa-times"></i>
+        </button><div class="fixed top-4 right-4 z-50 hidden lg:flex items-center gap-3">
+      </div>#}
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+      <a href="{{ path('app_accueil') }}" class="flex items-center px-4 py-3 text-sm rounded-lg transition-all {% if app.request.get('_route') == 'app_accueil' %}bg-blue-500/20 text-blue-400 border-r-2 border-blue-400{% else %}text-slate-300 hover:bg-white/10 hover:text-white{% endif %}">
+        <i class="bi bi-house mr-3"></i>
+        <span>Retour au site</span>
+      </a>
+      
+      <div class="pt-4 border-t border-slate-800 space-y-1">
+        <p class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">GESTION</p>
+        
+        {% set adminRoutes = {
+            'app_livre': {icon: 'journal-text', label: 'Livres'},
+            'app_auteur': {icon: 'pen', label: 'Auteurs'},
+            'app_categorie': {icon: 'tags', label: 'Catégories'},
+            'app_editeur': {icon: 'building', label: 'Éditeurs'}
+        } %}
+        
+        {% for routePrefix, item in adminRoutes %}
+            <a href="{{ path(routePrefix ~ '_index') }}" class="flex items-center px-4 py-3 text-sm rounded-lg transition-all {% if app.request.get('_route') starts with routePrefix %}bg-blue-500/20 text-blue-400 border-r-2 border-blue-400{% else %}text-slate-300 hover:bg-white/10 hover:text-white{% endif %}">
+                <i class="bi bi-{{ item.icon }} mr-3"></i>
+                <span>{{ item.label }}</span>
+            </a>
+        {% endfor %}
+        
+        {# Liens directs vers les CRUD EasyAdmin pour Emprunts, Avis, Wishlists #}
+        {# Liens vers les vues publiques correspondantes (templates) #}
+        <a href="{{ path('app_emprunt_index') }}" class="flex items-center px-4 py-3 text-sm rounded-lg transition-all {% if app.request.get('_route') == 'app_emprunt_index' %}bg-blue-500/20 text-blue-400 border-r-2 border-blue-400{% else %}text-slate-300 hover:bg-white/10 hover:text-white{% endif %}">
+          <i class="fas fa-exchange-alt mr-3"></i>
+          <span>Emprunts</span>
+        </a>
+
+        <a href="{{ path('app_avis_index') }}" class="flex items-center px-4 py-3 text-sm rounded-lg transition-all {% if app.request.get('_route') == 'app_avis_index' %}bg-blue-500/20 text-blue-400 border-r-2 border-blue-400{% else %}text-slate-300 hover:bg-white/10 hover:text-white{% endif %}">
+          <i class="fas fa-star mr-3"></i>
+          <span>Avis</span>
+        </a>
+
+        <a href="{{ path('app_wishlist_index') }}" class="flex items-center px-4 py-3 text-sm rounded-lg transition-all {% if app.request.get('_route') == 'app_wishlist_index' %}bg-blue-500/20 text-blue-400 border-r-2 border-blue-400{% else %}text-slate-300 hover:bg-white/10 hover:text-white{% endif %}">
+          <i class="fas fa-heart mr-3"></i>
+          <span>Wishlists</span>
+        </a>
+
+
+        <a href="{{ path('app_contact_my') }}" class="flex items-center px-4 py-3 text-sm rounded-lg transition-all {% if app.request.get('_route') == 'app_contact_my' %}bg-blue-500/20 text-blue-400 border-r-2 border-blue-400{% else %}text-slate-300 hover:bg-white/10 hover:text-white{% endif %}">
+          <i class="fas fa-inbox mr-3"></i>
+          <span>Mes messages</span>
+        </a>
+        {% if is_granted('ROLE_ADMIN') %}
+          <a href="{{ path('app_contact_admin_messages') }}" class="flex items-center px-4 py-3 text-sm rounded-lg transition-all {% if app.request.get('_route') == 'app_contact_admin_messages' %}bg-blue-500/20 text-blue-400 border-r-2 border-blue-400{% else %}text-slate-300 hover:bg-white/10 hover:text-white{% endif %}">
+            <i class="fas fa-comments mr-3"></i>
+            <span>Messages (admin)</span>
+          </a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-slate-800">
+      {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('admin') }}" class="flex items-center justify-center w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all mb-3">
+          <i class="bi bi-grid mr-2"></i>
+          Dashboard
+        </a>
+      {% endif %}
+      
+      <!-- User info -->
+      <div class="flex items-center space-x-3 px-2 py-3 rounded-lg bg-white/5">
+        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full flex items-center justify-center text-white relative">
+          <i class="bi bi-person-circle"></i>
+          <span id="notifications-badge-sidebar" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1 py-0.5 text-xs font-semibold leading-none text-white bg-red-600 rounded-full" style="display:none">0</span>
+        </div>
+        <div class="flex-1">
+          <div class="text-white text-sm font-medium truncate">{{ app.user ? (app.user.nomComplet ?: app.user.email) : 'Admin' }}</div>
+          <div class="text-emerald-400 text-xs flex items-center">
+            <span class="w-2 h-2 bg-emerald-400 rounded-full mr-1 animate-pulse"></span>
+            En ligne
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="{{ path('app_profile_edit') }}" class="text-slate-300 hover:text-white transition-colors" title="Mon profil">
+            <i class="fas fa-user-cog"></i>
+          </a>
+          <a href="{{ path('app_logout') }}" class="text-slate-400 hover:text-white transition-colors" title="Déconnexion">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay pour mobile -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 hidden lg:hidden" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- Bouton d'ouverture mobile -->
+<button class="lg:hidden fixed bottom-4 left-4 z-40 w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all" onclick="toggleSidebar()">
+  <i class="fas fa-bars text-xl"></i>
+</button>

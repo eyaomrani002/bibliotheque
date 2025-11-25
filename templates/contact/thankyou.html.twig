@@ -1,0 +1,76 @@
+{# templates/contact/thankyou.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Message envoyé - Bibliothèque{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <!-- Carte de confirmation -->
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 md:p-12">
+            <!-- Icône animée -->
+            <div class="relative mb-8">
+                <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                    <i class="fas fa-check text-white text-3xl"></i>
+                </div>
+                <div class="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-20"></div>
+            </div>
+
+            <!-- Titre -->
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Message envoyé !
+            </h1>
+
+            <!-- Message -->
+            <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                Votre message a été transmis à notre équipe avec succès. 
+                Nous vous répondrons dans les plus brefs délais.
+            </p>
+
+            <!-- Détails -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div>
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-clock text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Délai de réponse</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">24-48 heures</p>
+                    </div>
+                    <div>
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-envelope text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Notification</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Email de confirmation</p>
+                    </div>
+                    <div>
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-history text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Suivi</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Dans vos messages</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ path('app_contact_my') }}" class="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-inbox"></i>
+                    Voir mes messages
+                </a>
+                <a href="{{ path('app_accueil') }}" class="inline-flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 px-8 py-4 rounded-xl font-semibold shadow-lg transition-all">
+                    <i class="fas fa-home"></i>
+                    Retour à l'accueil
+                </a>
+            </div>
+
+            <!-- Info supplémentaire -->
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-8">
+                Vous recevrez une notification par email lorsque nous répondrons à votre message.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

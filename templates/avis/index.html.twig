@@ -1,0 +1,276 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Avis - Biblio-Symfony{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-star text-white text-xl"></i>
+                        </div>
+                        Mes Avis
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Gérer mes évaluations et commentaires
+                    </p>
+                </div>
+                <a href="{{ path('app_avis_new') }}" 
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105">
+                    <i class="fas fa-plus"></i>
+                    Nouvel Avis
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Avis</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ avis|length }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-comment text-blue-600 dark:text-blue-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Note Moyenne</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {% if avis|length > 0 %}
+                                {{ (avis|reduce((sum, avi) => sum + avi.note, 0) / avis|length)|number_format(1) }}/5
+                            {% else %}
+                                0/5
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-star text-amber-600 dark:text-amber-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Avis Actifs</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ avis|filter(avi => avi.isActive)|length }}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-check text-green-600 dark:text-green-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Dernier Avis</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">
+                            {% if avis|length > 0 %}
+                                {{ avis|sort((a, b) => b.dateCreation <=> a.dateCreation)|first.dateCreation|date('d/m') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clock text-purple-600 dark:text-purple-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des avis -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+            {% if avis is not empty %}
+                <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for avi in avis %}
+                        <div class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                <!-- Contenu de l'avis -->
+                                <div class="flex-1">
+                                    <div class="flex items-start gap-4">
+                                        <!-- Note -->
+                                        <div class="flex-shrink-0">
+                                            <div class="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex flex-col items-center justify-center text-white font-bold">
+                                                <span class="text-2xl">{{ avi.note }}</span>
+                                                <span class="text-xs">/5</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Détails -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                                                    {% if avi.livre %}
+                                                        {{ avi.livre.titre }}
+                                                    {% else %}
+                                                        Livre non spécifié
+                                                    {% endif %}
+                                                </h3>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ avi.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">
+                                                    {{ avi.isActive ? 'Actif' : 'Inactif' }}
+                                                </span>
+                                            </div>
+
+                                            <!-- Étoiles -->
+                                            <div class="flex items-center gap-2 mb-3">
+                                                <div class="flex">
+                                                    {% for i in 1..5 %}
+                                                        <i class="fas fa-star text-amber-400 {{ i > avi.note ? 'opacity-30' : '' }}"></i>
+                                                    {% endfor %}
+                                                </div>
+                                                <span class="text-sm text-gray-500 dark:text-gray-400">
+                                                    Posté le {{ avi.dateCreation ? avi.dateCreation|date('d/m/Y à H:i') : '-' }}
+                                                </span>
+                                            </div>
+
+                                            <!-- Commentaire -->
+                                            {% if avi.commentaire %}
+                                                <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
+                                                    {{ avi.commentaire }}
+                                                </p>
+                                            {% else %}
+                                                <p class="text-gray-500 dark:text-gray-400 italic">
+                                                    Aucun commentaire
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="flex items-center gap-2 lg:flex-col lg:items-end">
+                                    <a href="{{ path('app_avis_show', {'id': avi.id}) }}"
+                                       class="inline-flex items-center justify-center w-10 h-10 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                                       title="Voir"
+                                       aria-label="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <a href="{{ path('app_avis_edit', {'id': avi.id}) }}"
+                                       class="inline-flex items-center justify-center w-10 h-10 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                                       title="Modifier"
+                                       aria-label="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <button onclick="openDeleteModal({{ avi.id }})"
+                                            class="inline-flex items-center justify-center w-10 h-10 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                                            title="Supprimer"
+                                            aria-label="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+
+                                {# hidden delete form used by the modal JS to get CSRF token #}
+                                {{ include('avis/_delete_form.html.twig', {'avi': avi}) }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- État vide -->
+                <div class="text-center py-16">
+                    <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-star text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Aucun avis pour le moment</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                        Partagez votre première expérience de lecture en ajoutant un avis.
+                    </p>
+                    <a href="{{ path('app_avis_new') }}" 
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-plus"></i>
+                        Rédiger mon premier avis
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Supprimer l'avis</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                Êtes-vous sûr de vouloir supprimer cet avis ? Cette action est irréversible.
+            </p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="closeDeleteModal()" 
+                        class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Annuler
+                </button>
+                <form id="deleteForm" method="post" class="inline">
+                    <input type="hidden" name="_token" value="">
+                    <button type="submit" 
+                            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                        Confirmer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+let currentAvisId = null;
+
+function openDeleteModal(avisId) {
+    currentAvisId = avisId;
+    const modal = document.getElementById('deleteModal');
+    const form = document.getElementById('deleteForm');
+    const csrfToken = document.querySelector(`[data-avis-id="${avisId}"]`)?.dataset.token;
+    
+    form.action = `/avis/${avisId}`;
+    form.querySelector('input[name="_token"]').value = csrfToken;
+    modal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('hidden');
+    currentAvisId = null;
+}
+
+// Fermer la modal en cliquant à l'extérieur
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteModal();
+    }
+});
+</script>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.transition-colors {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+</style>
+{% endblock %}

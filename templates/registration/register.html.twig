@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-lg transform transition-all duration-300 hover:scale-105">
+        {# En-tête avec gradient #}
+        <div class="bg-gradient-to-r from-green-500 to-teal-600 px-8 py-8 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-white opacity-10 transform rotate-12"></div>
+            <i class="fas fa-user-plus text-5xl text-white mb-4 relative z-10"></i>
+            <h1 class="text-3xl font-bold text-white relative z-10">Inscription</h1>
+            <p class="text-green-100 mt-2 relative z-10">Créez votre compte en quelques secondes</p>
+        </div>
+
+        {# Messages d'erreur #}
+        {% for flash_error in app.flashes('verify_email_error') %}
+            <div class="mx-6 mt-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4 text-red-700 flex items-center">
+                <i class="fas fa-exclamation-triangle mr-3 text-xl"></i>
+                <span>{{ flash_error }}</span>
+            </div>
+        {% endfor %}
+
+        {# Formulaire #}
+        <div class="p-8">
+            {{ form_start(registrationForm, {'attr': {'class': 'space-y-6'}}) }}
+                
+                {# Email #}
+                <div class="transform transition-all duration-200 focus-within:scale-105">
+                    {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 mb-2 flex items-center'}}) }}
+                    {{ form_widget(registrationForm.email, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 hover:bg-white'}}) }}
+                    {{ form_errors(registrationForm.email) }}
+                </div>
+
+                {# Mot de passe #}
+                <div class="transform transition-all duration-200 focus-within:scale-105">
+                    {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 mb-2 flex items-center'}}) }}
+                    {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 hover:bg-white'}}) }}
+                    {{ form_errors(registrationForm.plainPassword) }}
+                </div>
+
+                {# Conditions #}
+                <div>
+                    <label class="flex items-start space-x-3 cursor-pointer">
+                        {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'mt-1 w-4 h-4 text-indigo-600 rounded'}}) }}
+                        <span class="text-sm text-gray-700">
+                            J'accepte les <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold">conditions d'utilisation</a> et la <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold">politique de confidentialité</a>
+                        </span>
+                    </label>
+                    {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                {# Bouton Submit #}
+                <button type="submit" 
+                        class="w-full px-8 py-3 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg transform transition-all duration-300 flex items-center justify-center space-x-2 hover:scale-105 active:scale-95">
+                    <i class="fas fa-user-plus"></i>
+                    <span>S'inscrire</span>
+                </button>
+
+            {{ form_end(registrationForm) }}
+
+            {# Lien vers login #}
+            <div class="mt-8 text-center">
+                <p class="text-sm text-gray-600">
+                    Déjà un compte ? 
+                    <a href="{{ path('app_login') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors duration-200">
+                        Se connecter <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

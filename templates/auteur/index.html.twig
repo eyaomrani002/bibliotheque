@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Auteurs{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    {# En-tête avec titre et bouton #}
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">📚 Bibliothèque d'Auteurs</h1>
+            <p class="text-gray-600 mt-2">Gérez votre collection d'auteurs</p>
+        </div>
+        <a href="{{ path('app_auteur_new') }}" 
+           class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 flex items-center space-x-2 transform hover:scale-105">
+            <i class="fas fa-plus-circle"></i>
+            <span>Nouvel Auteur</span>
+        </a>
+    </div>
+
+    {# Tableau moderne #}
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-gray-800 to-gray-900">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Auteur</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Date Naiss.</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Nationalité</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for auteur in auteurs %}
+                        <tr class="hover:bg-indigo-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-mono text-gray-500">#{{ auteur.id }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        {% if auteur.photo %}
+                                            <img src="{{ asset(auteur.getPhotoUrl()) }}" alt="{{ auteur.nom }}" class="h-10 w-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                        {% else %}
+                                            <div class="h-10 w-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                                {{ auteur.prenom|first }}{{ auteur.nom|first }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-semibold text-gray-900">{{ auteur.nom }} {{ auteur.prenom }}</div>
+                                        <div class="text-xs text-gray-500">{{ auteur.biographie|length > 50 ? auteur.biographie|slice(0, 50) ~ '...' : auteur.biographie }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-gray-700">
+                                    {{ auteur.dateNaissance ? auteur.dateNaissance|date('d/m/Y') : '-' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    {{ auteur.nationalite }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="mailto:{{ auteur.email }}" class="text-sm text-indigo-600 hover:text-indigo-900 flex items-center">
+                                    <i class="fas fa-envelope mr-2"></i>{{ auteur.email }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                <a href="{{ path('app_auteur_show', {'id': auteur.id}) }}" 
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors">
+                                    <i class="fas fa-eye mr-1"></i> Voir
+                                </a>
+                                <a href="{{ path('app_auteur_edit', {'id': auteur.id}) }}" 
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg text-amber-700 bg-amber-100 hover:bg-amber-200 transition-colors">
+                                    <i class="fas fa-edit mr-1"></i> Modifier
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <i class="fas fa-inbox text-5xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500 text-lg">Aucun auteur trouvé</p>
+                                <a href="{{ path('app_auteur_new') }}" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800">
+                                    Créer votre premier auteur →
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# Footer avec stats #}
+    {% if auteurs|length > 0 %}
+    <div class="mt-6 flex justify-between items-center text-sm text-gray-600">
+        <span>{{ auteurs|length }} auteur(s) au total</span>
+        <span>Mis à jour à l'instant</span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

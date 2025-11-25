@@ -1,0 +1,984 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bibliothèque – Biblio-Symfony{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .star-rating {
+            color: #fbbf24;
+        }
+        .wishlist-btn.active {
+            color: #dc2626;
+        }
+        .availability-badge {
+            transition: all 0.3s ease;
+        }
+        .book-card {
+            transition: all 0.3s ease;
+        }
+        .book-card:hover {
+            transform: translateY(-8px);
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        /* Scrollbar personnalisée */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #374151;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #6b7280;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Header Hero -->
+    <header class="bg-gradient-to-br from-blue-600 to-purple-700 text-white py-20">
+        <div class="container mx-auto px-6 text-center">
+            <div class="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full text-sm mb-6">
+                <i class="fas fa-book-open"></i>
+                <span>Système de Gestion de Bibliothèque</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                Bibliothèque <span class="text-yellow-300">Symfony</span>
+            </h1>
+            <p class="text-xl opacity-90 mb-12 max-w-3xl mx-auto">
+                Explorez, gérez et enrichissez votre collection littéraire avec style
+            </p>
+
+            <!-- Barre de recherche -->
+            <form method="get" action="{{ path('app_accueil') }}" class="max-w-4xl mx-auto">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 text-xl"></i>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="{{ search|default('') }}"
+                        placeholder="Rechercher un livre, auteur, ISBN, catégorie..." 
+                        class="w-full pl-16 pr-52 py-6 rounded-full text-gray-900 text-lg shadow-2xl focus:outline-none focus:ring-4 focus:ring-yellow-300 transition-all"
+                    >
+                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold px-10 py-4 rounded-full transition-all flex items-center gap-3 shadow-lg">
+                        <i class="fas fa-search"></i>
+                        Rechercher
+                    </button>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-16">
+        <!-- Statistiques améliorées -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-16">
+            {% set statsItems = [
+                { icon: 'fa-book', color: 'blue', count: stats.livres, label: 'Livres' },
+                { icon: 'fa-users', color: 'green', count: stats.auteurs, label: 'Auteurs' },
+                { icon: 'fa-tags', color: 'purple', count: stats.categories, label: 'Catégories' },
+                { icon: 'fa-building', color: 'orange', count: stats.editeurs, label: 'Éditeurs' },
+                { icon: 'fa-exchange-alt', color: 'red', count: stats.empruntsActifs, label: 'Emprunts Actifs' },
+                { icon: 'fa-star', color: 'yellow', count: stats.avis, label: 'Avis' }
+            ] %}
+            {% for stat in statsItems %}
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition duration-300">
+                <div class="w-16 h-16 bg-{{ stat.color }}-100 dark:bg-{{ stat.color }}-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas {{ stat.icon }} text-2xl text-{{ stat.color }}-600 dark:text-{{ stat.color }}-300"></i>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 dark:text-white mb-1">{{ stat.count }}</div>
+                <div class="text-gray-600 dark:text-gray-400 text-sm">{{ stat.label }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Section utilisateur connecté -->
+        {% if app.user %}
+        <div class="grid md:grid-cols-3 gap-8 mb-16">
+            <!-- Mes emprunts en cours -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fas fa-exchange-alt"></i> Mes emprunts
+                    </h3>
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">{{ userEmprunts|length }}</span>
+                </div>
+                {% if userEmprunts|length > 0 %}
+                    <div class="space-y-3">
+                        {% for emprunt in userEmprunts|slice(0, 3) %}
+                        <div class="bg-white/10 p-3 rounded-lg">
+                            <div class="font-medium text-sm">
+                                {{ emprunt.livre.titre|length > 25 ? emprunt.livre.titre|slice(0, 25) ~ '...' : emprunt.livre.titre }}
+                            </div>
+                            <div class="text-xs opacity-80">
+                                Retour avant le {{ emprunt.dateRetourPrevue|date('d/m/Y') }}
+                                {% if emprunt.estEnRetard %}
+                                    <span class="text-red-300 font-bold">(En retard!)</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if userEmprunts|length > 3 %}
+                        <a href="#" class="block text-center text-sm mt-3 opacity-80 hover:opacity-100">
+                            Voir les {{ userEmprunts|length - 3 }} autres...
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="text-sm opacity-80">Aucun emprunt en cours</p>
+                {% endif %}
+            </div>
+
+            <!-- Ma wishlist -->
+            <div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fas fa-heart"></i> Ma wishlist
+                    </h3>
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">{{ userWishlist|length }}</span>
+                </div>
+                {% if userWishlist|length > 0 %}
+                    <div class="space-y-3">
+                        {% for wish in userWishlist|slice(0, 3) %}
+                        <div class="bg-white/10 p-3 rounded-lg flex items-center justify-between">
+                            <div class="font-medium text-sm">
+                                {{ wish.livre.titre|length > 20 ? wish.livre.titre|slice(0, 20) ~ '...' : wish.livre.titre }}
+                            </div>
+                            <button class="text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition">
+                                Emprunter
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if userWishlist|length > 3 %}
+                        <a href="#" class="block text-center text-sm mt-3 opacity-80 hover:opacity-100">
+                            Voir les {{ userWishlist|length - 3 }} autres...
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="text-sm opacity-80">Aucun livre dans la wishlist</p>
+                {% endif %}
+            </div>
+
+            <!-- Mes avis -->
+            <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fas fa-star"></i> Mes avis
+                    </h3>
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">{{ userAvis|length }}</span>
+                </div>
+                {% if userAvis|length > 0 %}
+                    <div class="space-y-3">
+                        {% for avis in userAvis|slice(0, 3) %}
+                        <div class="bg-white/10 p-3 rounded-lg">
+                            <div class="flex justify-between items-start mb-1">
+                                <div class="font-medium text-sm">
+                                    {{ avis.livre.titre|length > 20 ? avis.livre.titre|slice(0, 20) ~ '...' : avis.livre.titre }}
+                                </div>
+                                <div class="star-rating text-xs flex items-center gap-2">
+                                    {% for i in 1..5 %}
+                                        <i class="fas fa-star{{ i > avis.note ? '-o' : '' }}"></i>
+                                    {% endfor %}
+                                    <button class="edit-avis-btn text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition ml-2"
+                                            data-avis-id="{{ avis.id }}"
+                                            data-rating="{{ avis.note }}"
+                                            data-comment="{{ avis.commentaire|e('html_attr') }}"
+                                            data-csrf="{{ csrf_token('edit_avis' ~ avis.id) }}"
+                                            title="Modifier mon avis">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% if avis.commentaire %}
+                                <div class="text-xs opacity-80 italic">
+                                    "{{ avis.commentaire|length > 30 ? avis.commentaire|slice(0, 30) ~ '...' : avis.commentaire }}"
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if userAvis|length > 3 %}
+                        <a href="#" class="block text-center text-sm mt-3 opacity-80 hover:opacity-100">
+                            Voir les {{ userAvis|length - 3 }} autres...
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="text-sm opacity-80">Aucun avis donné</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="grid lg:grid-cols-4 gap-10">
+            <!-- Sidebar améliorée -->
+            <aside class="lg:col-span-1 space-y-8">
+                <!-- Filtres -->
+                <form id="filtersForm" method="get" action="{{ path('app_accueil') }}" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+                    <h4 class="font-bold text-lg mb-6 flex items-center gap-3 text-gray-800 dark:text-white">
+                        <i class="fas fa-filter text-blue-600"></i> Filtres
+                    </h4>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm">Catégories</h5>
+                            <div class="space-y-2">
+                                {% for categorie in categories %}
+                                <label class="flex items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-3 py-2 rounded-lg transition text-sm">
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" name="categories[]" value="{{ categorie.id }}" class="w-4 h-4 text-blue-600 rounded" {% if selectedCategories is defined and categorie.id in selectedCategories %}checked{% endif %}>
+                                        <span>{{ categorie.designation }}</span>
+                                    </div>
+                                    <span class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full">{{ random(5, 50) }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm">Disponibilité</h5>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 text-sm">
+                                    <input type="radio" name="availability" value="all" class="w-4 h-4 text-blue-600" {% if selectedAvailability is not defined or selectedAvailability == 'all' %}checked{% endif %}> 
+                                    Tous les livres
+                                </label>
+                                <label class="flex items-center gap-3 text-sm">
+                                    <input type="radio" name="availability" value="available" class="w-4 h-4 text-blue-600" {% if selectedAvailability is defined and selectedAvailability == 'available' %}checked{% endif %}> 
+                                    En stock uniquement
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Filtre par note -->
+                        <div>
+                            <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm">Note moyenne</h5>
+                            <div class="space-y-2">
+                                {% for i in 5..1 %}
+                                <label class="flex items-center gap-3 text-sm">
+                                    <input type="checkbox" name="rating[]" value="{{ i }}" class="w-4 h-4 text-blue-600" {% if selectedRatings is defined and i in selectedRatings %}checked{% endif %}>
+                                    <div class="star-rating text-amber-500">
+                                        {% for j in 1..i %}<i class="fas fa-star text-xs"></i>{% endfor %}
+                                        {% for j in (i+1)..5 %}<i class="far fa-star text-xs"></i>{% endfor %}
+                                    </div>
+                                    <span class="text-gray-500 text-xs">et plus</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Prix -->
+                        <div>
+                            <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm">Prix</h5>
+                            <div class="flex items-center gap-3">
+                                <input type="number" name="minPrice" placeholder="Min" class="w-1/2 px-3 py-2 rounded-lg border border-gray-200 text-sm" value="{{ selectedMinPrice|default('') }}">
+                                <input type="number" name="maxPrice" placeholder="Max" class="w-1/2 px-3 py-2 rounded-lg border border-gray-200 text-sm" value="{{ selectedMaxPrice|default('') }}">
+                            </div>
+                        </div>
+
+                        <!-- Filtre Auteurs -->
+                        <div>
+                            <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm flex items-center justify-between">
+                                <span>Auteurs</span>
+                                <span id="authorsBadge" class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">0</span>
+                            </h5>
+                            
+                            <div class="space-y-3">
+                                <!-- Liste des auteurs avec design carte -->
+                                <div class="grid gap-2 max-h-56 overflow-y-auto p-1 custom-scrollbar">
+                                    {% for auteur in auteurs %}
+                                    <div class="author-card group relative">
+                                        <input type="checkbox" 
+                                               name="authors[]" 
+                                               value="{{ auteur.id }}" 
+                                               id="author_{{ auteur.id }}"
+                                               class="peer absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                               {% if selectedAuthors is defined and auteur.id in selectedAuthors %}checked{% endif %}>
+                                        <label for="author_{{ auteur.id }}" 
+                                               class="flex items-center justify-between p-3 rounded-xl border-2 border-gray-100 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer transition-all duration-200 hover:border-blue-300 hover:shadow-md peer-checked:border-blue-500 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 dark:peer-checked:border-blue-400">
+                                            <div class="flex items-center gap-3">
+                                                <!-- Avatar auteur -->
+                                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                                    {{ auteur.prenom|first|upper }}{{ auteur.nom|first|upper }}
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium text-gray-800 dark:text-gray-200 peer-checked:text-blue-700 dark:peer-checked:text-blue-300 text-sm">
+                                                        {{ auteur.prenom }} {{ auteur.nom }}
+                                                    </div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400 peer-checked:text-blue-600">
+                                                        {{ random(3, 25) }} livres
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Indicateur de sélection -->
+                                            <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:bg-blue-500 peer-checked:border-blue-500 flex items-center justify-center transition-all">
+                                                <i class="fas fa-check text-white text-xs opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Actions -->
+                                <div class="flex gap-2 pt-2">
+                                    <button type="button" 
+                                            id="selectAllAuthors" 
+                                            class="flex-1 px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
+                                        Tout sélectionner
+                                    </button>
+                                    <button type="button" 
+                                            id="deselectAllAuthors" 
+                                            class="flex-1 px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
+                                        Tout effacer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtre Éditeurs -->
+                        <div>
+                            <h5 class="font-semibold text-gray-700 dark:text-gray-300 mb-3 text-sm flex items-center justify-between">
+                                <span>Éditeurs</span>
+                                <span id="editorsBadge" class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">0</span>
+                            </h5>
+                            
+                            <div class="space-y-3">
+                                <!-- Liste des éditeurs avec design carte -->
+                                <div class="grid gap-2 max-h-56 overflow-y-auto p-1 custom-scrollbar">
+                                    {% for editeur in editeurs %}
+                                    <div class="editor-card group relative">
+                                        <input type="checkbox" 
+                                               name="editors[]" 
+                                               value="{{ editeur.id }}" 
+                                               id="editor_{{ editeur.id }}"
+                                               class="peer absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                               {% if selectedEditors is defined and editeur.id in selectedEditors %}checked{% endif %}>
+                                        <label for="editor_{{ editeur.id }}" 
+                                               class="flex items-center justify-between p-3 rounded-xl border-2 border-gray-100 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer transition-all duration-200 hover:border-purple-300 hover:shadow-md peer-checked:border-purple-500 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/20 dark:peer-checked:border-purple-400">
+                                            <div class="flex items-center gap-3">
+                                                <!-- Avatar éditeur -->
+                                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                                    {{ editeur.nom|slice(0, 2)|upper }}
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium text-gray-800 dark:text-gray-200 peer-checked:text-purple-700 dark:peer-checked:text-purple-300 text-sm">
+                                                        {{ editeur.nom }}
+                                                    </div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400 peer-checked:text-purple-600">
+                                                        {{ random(5, 30) }} publications
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Indicateur de sélection -->
+                                            <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:bg-purple-500 peer-checked:border-purple-500 flex items-center justify-center transition-all">
+                                                <i class="fas fa-check text-white text-xs opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Actions -->
+                                <div class="flex gap-2 pt-2">
+                                    <button type="button" 
+                                            id="selectAllEditors" 
+                                            class="flex-1 px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
+                                        Tout sélectionner
+                                    </button>
+                                    <button type="button" 
+                                            id="deselectAllEditors" 
+                                            class="flex-1 px-3 py-2 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
+                                        Tout effacer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end items-center gap-2">
+                            <input type="hidden" name="q" id="filtersForm_q" value="{{ search|default('') }}">
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Appliquer</button>
+                            <a href="{{ path('app_accueil') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm">Réinitialiser</a>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Actions Rapides améliorées -->
+                <div class="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-2xl shadow-2xl p-6">
+                    <h5 class="font-bold text-lg mb-4">Actions Rapides</h5>
+                    <div class="space-y-3">
+                        <a href="{{ path('app_livre_new') }}" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition text-sm">
+                            <i class="fas fa-plus-circle"></i> Ajouter un livre
+                        </a>
+                        <a href="{{ path('app_livre_index') }}" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition text-sm">
+                            <i class="fas fa-list"></i> Gestion complète
+                        </a>
+                        {% if app.user %}
+                        <a href="#" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition text-sm">
+                            <i class="fas fa-exchange-alt"></i> Mes emprunts
+                        </a>
+                        <a href="#" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition text-sm">
+                            <i class="fas fa-heart"></i> Ma wishlist
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Grille des livres améliorée -->
+            <div class="lg:col-span-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold flex items-center gap-3 text-gray-800 dark:text-white">
+                            <i class="fas fa-th-large text-blue-600"></i>
+                            Collection de Livres
+                        </h2>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">
+                            {{ livres|length }} livre{{ livres|length > 1 ? 's' : '' }} trouvé{{ livres|length > 1 ? 's' : '' }}
+                            {% if search %} pour "{{ search }}"{% endif %}
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <select class="px-4 py-2 rounded-lg border border-gray-300 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm">
+                            <option>Trier par défaut</option>
+                            <option>Prix croissant</option>
+                            <option>Prix décroissant</option>
+                            <option>Note moyenne</option>
+                            <option>Date d'ajout</option>
+                        </select>
+                        <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition flex items-center gap-2">
+                            <i class="fas fa-sliders-h"></i> Filtres
+                        </button>
+                    </div>
+                </div>
+
+                {% if livres is defined and livres is not empty %}
+                    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {% for livre in livres %}
+                            {% set isInWishlist = app.user and livre in userWishlist|map(w => w.livre) %}
+                            {% set userAvisLivre = app.user ? userAvis|filter(a => a.livre.id == livre.id)|first : null %}
+                            {% set noteMoyenne = livre.getNoteMoyenne() is defined ? livre.getNoteMoyenne() : 0 %}
+                            
+                            <article class="book-card group bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300">
+                                <div class="relative overflow-hidden">
+                                    <!-- Image de couverture -->
+                                    {% if livre.image %}
+                                        <img 
+                                            src="{{ asset('uploads/livres/' ~ livre.image) }}" 
+                                            alt="{{ livre.titre }}" 
+                                            class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                                            loading="lazy"
+                                        >
+                                    {% else %}
+                                        <div class="h-64 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                                            <i class="fas fa-book text-8xl text-gray-300 dark:text-gray-600 opacity-50"></i>
+                                        </div>
+                                    {% endif %}
+
+                                    <!-- Badges -->
+                                    <div class="absolute top-3 left-3 space-y-1">
+                                        <span class="availability-badge px-3 py-1 rounded-full text-xs font-bold shadow-lg
+                                            {{ livre.estDisponible is defined and livre.estDisponible ? 'bg-green-500 text-white' : 'bg-red-600 text-white' }}">
+                                            {{ livre.estDisponible is defined and livre.estDisponible ? 'Disponible' : 'Indisponible' }}
+                                        </span>
+                                        {% if noteMoyenne > 0 %}
+                                        <span class="px-2 py-1 bg-amber-500 text-white rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                                            <i class="fas fa-star text-xs"></i> {{ noteMoyenne }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Actions rapides -->
+                                    <div class="absolute top-3 right-3 space-y-2">
+                                        <!-- Bouton Wishlist -->
+                                        {% if app.user %}
+                                        <button class="wishlist-btn p-2 bg-white/90 hover:bg-white dark:bg-gray-800/90 rounded-full shadow-lg hover:shadow-xl transition {{ isInWishlist ? 'active' : '' }}"
+                                                data-livre-id="{{ livre.id }}"
+                                                data-action="{{ isInWishlist ? 'remove' : 'add' }}">
+                                            <i class="{{ isInWishlist ? 'fas' : 'far' }} fa-heart text-lg {{ isInWishlist ? 'text-red-500' : 'text-gray-600' }}"></i>
+                                        </button>
+                                        {% endif %}
+                                        
+                                        <!-- Bouton Emprunter -->
+                                        {% if livre.estDisponible is defined and livre.estDisponible and app.user %}
+                                        <button class="p-2 bg-white/90 hover:bg-white dark:bg-gray-800/90 rounded-full shadow-lg hover:shadow-xl transition borrow-btn"
+                                                data-livre-id="{{ livre.id }}"
+                                                data-livre-titre="{{ livre.titre }}">
+                                            <i class="fas fa-exchange-alt text-lg text-blue-600"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2 text-gray-800 dark:text-white line-clamp-2 group-hover:text-blue-600 transition">
+                                        {{ livre.titre }}
+                                    </h3>
+
+                                    <!-- Auteurs -->
+                                    <p class="text-gray-600 dark:text-gray-400 flex items-center gap-2 mb-3 text-sm">
+                                        <i class="fas fa-user-edit text-blue-600"></i>
+                                        {% if livre.auteurs|length > 0 %}
+                                            {{ livre.auteurs|first.prenom }} {{ livre.auteurs|first.nom }}
+                                            {% if livre.auteurs|length > 1 %} <span class="text-xs text-gray-500">+{{ livre.auteurs|length - 1 }}</span>{% endif %}
+                                        {% else %}
+                                            Auteur inconnu
+                                        {% endif %}
+                                    </p>
+
+                                    <!-- Note moyenne -->
+                                    {% if noteMoyenne > 0 %}
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <div class="star-rating flex">
+                                            {% for i in 1..5 %}
+                                                <i class="fas fa-star{{ i > noteMoyenne ? (i - 0.5 <= noteMoyenne ? '-half-alt' : '-o') : '' }} text-sm"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span class="text-xs text-gray-500">({{ livre.avis is defined ? livre.avis|length : 0 }} avis)</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Tags -->
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="text-xs bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">#{{ livre.isbn|default('N/A') }}</span>
+                                        {% if livre.categorie %}
+                                            <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full">
+                                                {{ livre.categorie.designation }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Prix et stock -->
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ livre.prix }} DH</span>
+                                        <span class="text-sm text-gray-500">
+                                            {% if livre.getExemplairesDisponibles is defined %}
+                                                {{ livre.getExemplairesDisponibles() }}/{{ livre.qte }} dispo.
+                                            {% else %}
+                                                {{ livre.qte }} exemplaire{{ livre.qte > 1 ? 's' : '' }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="flex gap-3">
+                                        <a href="{{ path('app_livre_show', {'id': livre.id}) }}" 
+                                           class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center py-3 rounded-lg font-semibold transition shadow-lg text-sm">
+                                            Voir détails
+                                        </a>
+                                        {% if livre.pdf %}
+                                        <a href="{{ path('app_livre_download', {'id': livre.id}) }}" 
+                                           class="p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition shadow-lg flex items-center justify-center"
+                                           title="Télécharger le PDF">
+                                            <i class="fas fa-file-pdf text-sm"></i>
+                                        </a>
+                                        {% endif %}
+                                        {% if app.user and not userAvisLivre %}
+                                        <button class="p-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition shadow-lg rate-btn"
+                                                data-livre-id="{{ livre.id }}"
+                                                title="Donner un avis">
+                                            <i class="fas fa-star text-sm"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <!-- Message aucun livre trouvé -->
+                    <div class="text-center py-20">
+                        <i class="fas fa-book-open text-8xl text-gray-300 dark:text-gray-700 mb-6"></i>
+                        <h3 class="text-3xl font-bold text-gray-700 dark:text-gray-300 mb-4">Aucun livre trouvé</h3>
+                        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-8">
+                            {% if search %}
+                                Aucun résultat pour "<strong>{{ search }}</strong>". Essayez d'autres mots-clés.
+                            {% else %}
+                                Votre bibliothèque est vide pour le moment.
+                            {% endif %}
+                        </p>
+                        <a href="{{ path('app_livre_new') }}" class="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-xl transition">
+                            <i class="fas fa-plus"></i>
+                            Ajouter le premier livre
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{# Contact form included at the bottom of the homepage #}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    {{ include('contact/_public_form.html.twig', {'form': contactForm}) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des compteurs pour auteurs et éditeurs
+    function updateCounters() {
+        const authorCount = document.querySelectorAll('input[name="authors[]"]:checked').length;
+        const editorCount = document.querySelectorAll('input[name="editors[]"]:checked').length;
+        
+        const authorsBadge = document.getElementById('authorsBadge');
+        const editorsBadge = document.getElementById('editorsBadge');
+        
+        if (authorsBadge) {
+            authorsBadge.textContent = authorCount;
+        }
+        
+        if (editorsBadge) {
+            editorsBadge.textContent = editorCount;
+        }
+    }
+    
+    // Tout sélectionner pour les auteurs
+    document.getElementById('selectAllAuthors')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('input[name="authors[]"]').forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateCounters();
+    });
+    
+    // Tout effacer pour les auteurs
+    document.getElementById('deselectAllAuthors')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('input[name="authors[]"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateCounters();
+    });
+    
+    // Tout sélectionner pour les éditeurs
+    document.getElementById('selectAllEditors')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('input[name="editors[]"]').forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateCounters();
+    });
+    
+    // Tout effacer pour les éditeurs
+    document.getElementById('deselectAllEditors')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('input[name="editors[]"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateCounters();
+    });
+    
+    // Écouter les changements sur les cases à cocher
+    document.querySelectorAll('input[name="authors[]"], input[name="editors[]"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateCounters);
+    });
+    
+    // Initialiser les compteurs
+    updateCounters();
+
+    // Gestion de la wishlist
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const livreId = this.dataset.livreId;
+            const action = this.dataset.action;
+            
+            try {
+                const response = await fetch(`/wishlist/${action}/${livreId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Mettre à jour l'icône
+                    const icon = this.querySelector('i');
+                    if (action === 'add') {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas', 'text-red-500');
+                        this.dataset.action = 'remove';
+                    } else {
+                        icon.classList.remove('fas', 'text-red-500');
+                        icon.classList.add('far', 'text-gray-600');
+                        this.dataset.action = 'add';
+                    }
+                    
+                    // Afficher notification
+                    showNotification(result.message, 'success');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la mise à jour', 'error');
+            }
+        });
+    });
+
+    // Gestion des emprunts
+    document.querySelectorAll('.borrow-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const livreId = this.dataset.livreId;
+            const livreTitre = this.dataset.livreTitre;
+            
+            Swal.fire({
+                title: 'Emprunter ce livre ?',
+                html: `Êtes-vous sûr de vouloir emprunter <strong>"${livreTitre}"</strong> ?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Oui, emprunter',
+                cancelButtonText: 'Annuler'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/emprunt/emprunter/${livreId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showNotification(data.message, 'success');
+                            // Mettre à jour l'interface
+                            location.reload();
+                        } else {
+                            showNotification(data.error, 'error');
+                        }
+                    } catch (error) {
+                        showNotification('Erreur lors de l\'emprunt', 'error');
+                    }
+                }
+            });
+        });
+    });
+
+    // Gestion des avis
+    document.querySelectorAll('.rate-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const livreId = this.dataset.livreId;
+            openRatingModal(livreId);
+        });
+    });
+
+    // Edition d'un avis existant
+    document.body.addEventListener('click', function(e) {
+        const btn = e.target.closest && e.target.closest('.edit-avis-btn');
+        if (!btn) return;
+
+        const avisId = btn.dataset.avisId;
+        const currentRating = parseInt(btn.dataset.rating || '0', 10);
+        const currentComment = btn.dataset.comment || '';
+        const csrf = btn.dataset.csrf || '';
+
+        openEditModal(avisId, currentRating, currentComment, csrf);
+    });
+
+    function showNotification(message, type) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: type,
+            title: message,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    }
+
+    function openRatingModal(livreId) {
+        Swal.fire({
+            title: 'Donner votre avis',
+            html: `
+                <div class="text-center">
+                    <div class="my-4" id="starRating">
+                        ${[1,2,3,4,5].map(i => 
+                            `<button type="button" class="text-3xl text-gray-300 hover:text-yellow-400 transition mx-1" data-rating="${i}">
+                                <i class="far fa-star"></i>
+                            </button>`
+                        ).join('')}
+                    </div>
+                    <textarea id="comment" class="w-full px-3 py-2 border border-gray-300 rounded-lg mt-4" 
+                              placeholder="Votre commentaire (optionnel)" rows="3"></textarea>
+                    <input type="hidden" id="selectedRating" value="0">
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Envoyer',
+            cancelButtonText: 'Annuler',
+            preConfirm: () => {
+                const rating = document.getElementById('selectedRating').value;
+                const comment = document.getElementById('comment').value;
+                
+                if (rating == 0) {
+                    Swal.showValidationMessage('Veuillez sélectionner une note');
+                    return false;
+                }
+                
+                return { rating: rating, comment: comment };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/avis/ajouter/${livreId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify(result.value)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showNotification('Avis envoyé avec succès!', 'success');
+                        location.reload();
+                    } else {
+                        showNotification(data.error, 'error');
+                    }
+                } catch (error) {
+                    showNotification('Erreur lors de l\'envoi de l\'avis', 'error');
+                }
+            }
+        });
+
+        // Gestion des étoiles
+        document.querySelectorAll('#starRating button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const rating = this.dataset.rating;
+                document.getElementById('selectedRating').value = rating;
+                
+                // Mettre à jour l'affichage des étoiles
+                document.querySelectorAll('#starRating button').forEach((starBtn, index) => {
+                    const starIcon = starBtn.querySelector('i');
+                    if (index < rating) {
+                        starIcon.classList.remove('far');
+                        starIcon.classList.add('fas', 'text-yellow-400');
+                    } else {
+                        starIcon.classList.remove('fas', 'text-yellow-400');
+                        starIcon.classList.add('far');
+                    }
+                });
+            });
+        });
+    }
+
+    function openEditModal(avisId, currentRating, currentComment, csrfToken) {
+        Swal.fire({
+            title: 'Modifier votre avis',
+            html: `
+                <div class="text-center">
+                    <div class="my-4" id="editStarRating">
+                        ${[1,2,3,4,5].map(i => 
+                            `<button type="button" class="text-3xl text-gray-300 hover:text-yellow-400 transition mx-1" data-rating="${i}">
+                                <i class="far fa-star"></i>
+                            </button>`
+                        ).join('')}
+                    </div>
+                    <textarea id="editComment" class="w-full px-3 py-2 border border-gray-300 rounded-lg mt-4" 
+                              placeholder="Votre commentaire (optionnel)" rows="3">${currentComment}</textarea>
+                    <input type="hidden" id="editSelectedRating" value="${currentRating}">
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Enregistrer',
+            cancelButtonText: 'Annuler',
+            preConfirm: () => {
+                const rating = document.getElementById('editSelectedRating').value;
+                const comment = document.getElementById('editComment').value;
+
+                if (rating == 0) {
+                    Swal.showValidationMessage('Veuillez sélectionner une note');
+                    return false;
+                }
+
+                return { rating: rating, comment: comment };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const payload = { rating: result.value.rating, comment: result.value.comment };
+
+                    const response = await fetch(`/avis/modifier/${avisId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        showNotification(data.message || 'Avis modifié', 'success');
+                        location.reload();
+                    } else {
+                        showNotification(data.error || 'Erreur lors de la modification', 'error');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showNotification('Erreur lors de la modification', 'error');
+                }
+            }
+        });
+
+        // Pré-remplir l'affichage des étoiles
+        document.querySelectorAll('#editStarRating button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const rating = this.dataset.rating;
+                document.getElementById('editSelectedRating').value = rating;
+
+                document.querySelectorAll('#editStarRating button').forEach((starBtn, index) => {
+                    const starIcon = starBtn.querySelector('i');
+                    if (index < rating) {
+                        starIcon.classList.remove('far');
+                        starIcon.classList.add('fas', 'text-yellow-400');
+                    } else {
+                        starIcon.classList.remove('fas', 'text-yellow-400');
+                        starIcon.classList.add('far');
+                    }
+                });
+            });
+        });
+
+        // Simuler le clic pour afficher l'état initial
+        const initial = parseInt(currentRating || '0', 10);
+        if (initial > 0) {
+            const buttons = document.querySelectorAll('#editStarRating button');
+            for (let i = 0; i < initial && i < buttons.length; i++) {
+                const icon = buttons[i].querySelector('i');
+                icon.classList.remove('far');
+                icon.classList.add('fas', 'text-yellow-400');
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

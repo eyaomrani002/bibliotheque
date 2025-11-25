@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bibliothèque{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    {# En-tête avec titre et bouton #}
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">📚 Bibliothèque</h1>
+            <p class="text-gray-600 mt-2">Gérez votre collection de livres</p>
+        </div>
+        <a href="{{ path('app_livre_new') }}" 
+           class="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 flex items-center space-x-2 transform hover:scale-105">
+            <i class="fas fa-plus-circle"></i>
+            <span>Nouveau Livre</span>
+        </a>
+    </div>
+
+    {# Tableau moderne #}
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-gray-800 to-gray-900">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Livre</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">ISBN</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Prix</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Stock</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Langue</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for livre in livres %}
+                        <tr class="hover:bg-indigo-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-mono text-gray-500">#{{ livre.id }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-start">
+                                    {% if livre.image %}
+                                        <img src="{{ asset(livre.imageUrl) }}" alt="{{ livre.titre }}" class="h-16 w-12 object-cover rounded-lg shadow" loading="lazy" onerror="this.style.display='none'">
+                                    {% else %}
+                                        <div class="h-16 w-12 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center text-white text-2xl font-bold shadow">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <div class="text-sm font-semibold text-gray-900">{{ livre.titre }}</div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ livre.datpub ? livre.datpub|date('d/m/Y') : 'Date inconnue' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-xs font-mono text-gray-600">{{ livre.isbn }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm font-bold text-green-700">{{ livre.prix }} €</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if livre.qte > 0 %}
+                                    <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>{{ livre.qte }} en stock
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                        <i class="fas fa-times-circle mr-1"></i>Rupture
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    <i class="fas fa-globe mr-1"></i>{{ livre.langue }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                <a href="{{ path('app_livre_show', {'id': livre.id}) }}" 
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors">
+                                    <i class="fas fa-eye mr-1"></i> Voir
+                                </a>
+                                <a href="{{ path('app_livre_edit', {'id': livre.id}) }}" 
+                                   class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg text-amber-700 bg-amber-100 hover:bg-amber-200 transition-colors">
+                                    <i class="fas fa-edit mr-1"></i> Modifier
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <i class="fas fa-book-open text-5xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500 text-lg">Aucun livre trouvé</p>
+                                <a href="{{ path('app_livre_new') }}" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800">
+                                    Ajouter votre premier livre →
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# Footer avec stats #}
+    {% if livres|length > 0 %}
+    <div class="mt-6 flex justify-between items-center text-sm text-gray-600">
+        <span>{{ livres|length }} livre(s) au total</span>
+        <span>Mis à jour à l'instant</span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

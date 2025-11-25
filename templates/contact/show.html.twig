@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Message reçu - Contact #{{ contact.id }}{% endblock %}
+
+{% block body %}
+<div class="max-w-3xl mx-auto py-8">
+    <div class="bg-white/80 dark:bg-gray-900/70 rounded-2xl shadow-lg p-6 backdrop-blur">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Message reçu</h1>
+            <div class="flex items-center gap-3">
+                <a href="{{ path('app_contact_index') }}" class="text-sm text-gray-600 hover:underline">Retour</a>
+                <a href="{{ path('app_contact_edit', {'id': contact.id}) }}" class="inline-flex items-center px-3 py-2 bg-yellow-400 text-white rounded-lg">Répondre</a>
+                {{ include('contact/_delete_form.html.twig') }}
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div><strong>De :</strong> {{ contact.nomComplet }} &lt;{{ contact.email }}&gt;</div>
+            <div><strong>Sujet :</strong> {{ contact.sujet }}</div>
+            <div class="mt-4 whitespace-pre-wrap">{{ contact.message|raw }}</div>
+            <div class="text-sm text-gray-500 mt-4">Envoyé le {{ contact.dateEnvoi ? contact.dateEnvoi|date('d/m/Y H:i') : '' }}</div>
+            {% if contact.reponse %}
+                <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+                    <h3 class="font-semibold">Réponse</h3>
+                    <div class="mt-2 whitespace-pre-wrap">{{ contact.reponse|raw }}</div>
+                    <div class="text-sm text-gray-500 mt-2">Répondu le {{ contact.dateReponse ? contact.dateReponse|date('d/m/Y H:i') : '' }}</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

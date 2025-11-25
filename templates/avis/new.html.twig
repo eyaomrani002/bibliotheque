@@ -1,0 +1,232 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel Avis - Biblio-Symfony{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="flex items-center gap-4 mb-8">
+                <a href="{{ path('app_avis_index') }}" 
+                   class="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors hover:shadow-xl">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </a>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-plus text-white text-xl"></i>
+                        </div>
+                        Nouvel Avis
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Partagez votre expérience de lecture
+                    </p>
+                    {% if form.livre is defined and form.livre.vars.value is not null %}
+                        <p class="text-sm text-gray-500 mt-1">Livre : <strong>{{ form.livre.vars.value.titre is defined ? form.livre.vars.value.titre : form.livre.vars.value }}</strong></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Formulaire principal -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8">
+                        <!-- Indicateur de progression -->
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    <span class="flex items-center justify-center w-6 h-6 bg-blue-600 text-white rounded-full text-xs">1</span>
+                                    <span>Informations de base</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full w-1/3"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{ include('avis/_form.html.twig', { 'render_rest': false }) }}
+                    </div>
+                </div>
+
+                <!-- Sidebar d'aide -->
+                <div class="space-y-6">
+                    <!-- Conseils -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-amber-500"></i>
+                            Conseils pour votre avis
+                        </h3>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-star text-amber-400 mt-1"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Note précise</p>
+                                    <p class="text-gray-600 dark:text-gray-400">Évaluez honnêtement votre expérience</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-comment text-blue-400 mt-1"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Commentaire utile</p>
+                                    <p class="text-gray-600 dark:text-gray-400">Partagez ce qui vous a plu ou déplu</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-eye text-green-400 mt-1"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Visibilité</p>
+                                    <p class="text-gray-600 dark:text-gray-400">Activez pour partager avec la communauté</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exemple d'avis -->
+                    <div class="bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Exemple d'avis utile</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="bg-white/10 p-3 rounded-lg">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="flex text-amber-300">
+                                        {% for i in 1..5 %}
+                                            <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="opacity-90 italic">
+                                    "Ce livre m'a captivé du début à la fin. Les personnages sont bien développés et l'intrigue maintient le suspense."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions rapides -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actions rapides</h3>
+                        <div class="space-y-3">
+                            <a href="{{ path('app_avis_index') }}" 
+                               class="flex items-center gap-3 p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                                <i class="fas fa-list text-blue-500"></i>
+                                Mes avis
+                            </a>
+                            <a href="{{ path('app_livre_index') }}" 
+                               class="flex items-center gap-3 p-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                                <i class="fas fa-book text-green-500"></i>
+                                Explorer les livres
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'entrée pour le formulaire
+    const form = document.querySelector('form');
+    if (form) {
+        form.style.opacity = '0';
+        form.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            form.style.transition = 'all 0.5s ease';
+            form.style.opacity = '1';
+            form.style.transform = 'translateY(0)';
+        }, 100);
+    }
+
+    // Validation en temps réel
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() !== '') {
+                this.classList.add('border-green-300', 'dark:border-green-600');
+                this.classList.remove('border-red-300', 'dark:border-red-600');
+            } else if (this.required) {
+                this.classList.add('border-red-300', 'dark:border-red-600');
+                this.classList.remove('border-green-300', 'dark:border-green-600');
+            }
+        });
+    });
+
+    // Confirmation avant de quitter la page
+    let formChanged = false;
+    const formElements = document.querySelectorAll('form input, form textarea, form select');
+    
+    formElements.forEach(element => {
+        element.addEventListener('input', () => {
+            formChanged = true;
+        });
+    });
+
+    window.addEventListener('beforeunload', (e) => {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Soumission du formulaire
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.addEventListener('click', function() {
+            formChanged = false;
+            
+            // Animation de chargement
+            this.innerHTML = `
+                <i class="fas fa-spinner fa-spin"></i>
+                Création en cours...
+            `;
+            this.disabled = true;
+        });
+    }
+});
+</script>
+
+<style>
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Animation de pulse pour les étoiles */
+@keyframes pulse-glow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+#starRating button:hover {
+    animation: pulse-glow 0.6s ease-in-out;
+}
+
+/* Transition pour les cartes */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* Style pour les messages de validation */
+.valid-feedback {
+    display: none;
+    color: #10b981;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.invalid-feedback {
+    display: none;
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.was-validated .form-control:valid ~ .valid-feedback,
+.was-validated .form-control:invalid ~ .invalid-feedback {
+    display: block;
+}
+</style>
+{% endblock %}

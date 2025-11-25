@@ -1,0 +1,169 @@
+{# templates/emprunt/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail Emprunt #{{ emprunt.id }} - Bibliothèque{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Emprunt #{{ emprunt.id }}</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Détails de l'emprunt</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="{{ path('app_emprunt_edit', {'id': emprunt.id}) }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-semibold rounded-full shadow-lg transition-transform transform hover:-translate-y-0.5">
+                <i class="fas fa-edit mr-2"></i>
+                Modifier
+            </a>
+            {{ include('emprunt/_delete_form.html.twig') }}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Informations principales -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Carte Livre -->
+            <div class="bg-white/80 dark:bg-gray-900/70 rounded-2xl shadow-lg p-6 backdrop-blur">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Livre emprunté</h2>
+                <div class="flex items-center space-x-4">
+                    {% if emprunt.livre.image %}
+                        <img src="{{ emprunt.livre.imageUrl }}" alt="{{ emprunt.livre.titre }}" class="w-20 h-28 object-cover rounded-lg shadow-md">
+                    {% else %}
+                        <div class="w-20 h-28 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-lg flex items-center justify-center text-gray-400 dark:text-gray-500">
+                            <i class="fas fa-book text-2xl"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ emprunt.livre.titre }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">
+                            {% for auteur in emprunt.livre.auteurs %}
+                                {{ auteur.prenom }} {{ auteur.nom }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {{ emprunt.livre.categorie.designation }} • {{ emprunt.livre.editeur.nom }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails de l'emprunt -->
+            <div class="bg-white/80 dark:bg-gray-900/70 rounded-2xl shadow-lg p-6 backdrop-blur">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Détails de l'emprunt</h2>
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Date d'emprunt</dt>
+                        <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ emprunt.dateEmprunt ? emprunt.dateEmprunt|date('d/m/Y à H:i') : 'Non spécifiée' }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Retour prévu</dt>
+                        <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ emprunt.dateRetourPrevue ? emprunt.dateRetourPrevue|date('d/m/Y') : 'Non spécifiée' }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Retour effectif</dt>
+                        <dd class="mt-1 text-lg font-semibold {% if emprunt.dateRetourEffective %}text-green-600{% else %}text-gray-900 dark:text-white{% endif %}">
+                            {{ emprunt.dateRetourEffective ? emprunt.dateRetourEffective|date('d/m/Y') : 'Non retourné' }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Statut</dt>
+                        <dd class="mt-1">
+                            {% if emprunt.statut == 'retourné' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                    <i class="fas fa-check-circle mr-1"></i>
+                                    Retourné
+                                </span>
+                            {% elseif emprunt.statut == 'en_retard' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    En retard
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    En cours
+                                </span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Notes -->
+            {% if emprunt.notes %}
+                <div class="bg-white/80 dark:bg-gray-900/70 rounded-2xl shadow-lg p-6 backdrop-blur">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Notes</h2>
+                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ emprunt.notes }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Statut rapide -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Statut rapide</h3>
+                <div class="space-y-3">
+                    {% if emprunt.estEnRetard %}
+                        <div class="flex items-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                            <span class="text-red-700 dark:text-red-300 font-medium">Emprunt en retard</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if emprunt.statut == 'emprunté' and not emprunt.estEnRetard %}
+                        <div class="flex items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                            <i class="fas fa-clock text-green-500 mr-3"></i>
+                            <span class="text-green-700 dark:text-green-300 font-medium">
+                                {{ emprunt.getJoursRestants }} jours restants
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    {% if emprunt.statut == 'retourné' %}
+                        <div class="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <i class="fas fa-check-circle text-blue-500 mr-3"></i>
+                            <span class="text-blue-700 dark:text-blue-300 font-medium">Livre retourné</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actions</h3>
+                <div class="space-y-3">
+                    <a href="{{ path('app_livre_show', {'id': emprunt.livre.id}) }}" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i>
+                        Voir le livre
+                    </a>
+                    
+                    {% if emprunt.statut == 'emprunté' and not emprunt.estEnRetard %}
+                        <form method="post" action="{{ path('app_emprunt_prolonger', {'id': emprunt.id}) }}" class="w-full">
+                            <input type="hidden" name="_token" value="{{ csrf_token('prolonger' ~ emprunt.id) }}">
+                            <button type="submit" class="w-full flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                                <i class="fas fa-calendar-plus mr-2"></i>
+                                Prolonger (7 jours)
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-center">
+        <a href="{{ path('app_emprunt_index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Retour à la liste des emprunts
+        </a>
+    </div>
+</div>
+{% endblock %}

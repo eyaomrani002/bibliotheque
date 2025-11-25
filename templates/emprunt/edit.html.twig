@@ -1,0 +1,42 @@
+{# templates/emprunt/edit.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Emprunt #{{ emprunt.id }} - Bibliothèque{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Modifier l'emprunt</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Modifiez les informations de l'emprunt #{{ emprunt.id }}</p>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-white/60 to-white/30 dark:from-gray-800/60 dark:to-gray-800/40 backdrop-blur p-1">
+        <div class="bg-white/80 dark:bg-gray-900/70 rounded-2xl p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-lg flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Modification de l'emprunt</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Mettez à jour les informations de l'emprunt.</p>
+                </div>
+            </div>
+
+            <div>
+                {{ include('emprunt/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions supplémentaires -->
+    <div class="mt-6 flex items-center justify-between">
+        <a href="{{ path('app_emprunt_show', {'id': emprunt.id}) }}" class="inline-flex items-center text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">
+            <i class="fas fa-arrow-left mr-1"></i>
+            Retour aux détails
+        </a>
+        {{ include('emprunt/_delete_form.html.twig') }}
+    </div>
+</div>
+{% endblock %}

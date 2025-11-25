@@ -1,0 +1,215 @@
+{# templates/emprunt/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Emprunts - Bibliothèque{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Mes Emprunts</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Gérez vos emprunts de livres</p>
+        </div>
+        <a href="{{ path('app_emprunt_new') }}" class="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold rounded-full shadow-2xl hover:shadow-3xl transition-transform transform hover:-translate-y-0.5 mt-4 sm:mt-0">
+            <i class="fas fa-plus text-lg"></i>
+            <span class="hidden sm:inline">Nouvel emprunt</span>
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="relative overflow-hidden rounded-2xl p-6 bg-white/70 dark:bg-gray-800/60 backdrop-blur-sm border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 shadow-md">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-indigo-50 text-indigo-600">
+                    <i class="fas fa-book-open text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">En cours</p>
+                    <p class="text-3xl font-extrabold text-gray-900 dark:text-white">{{ empruntsEnCours|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative overflow-hidden rounded-2xl p-6 bg-white/70 dark:bg-gray-800/60 backdrop-blur-sm border border-transparent hover:border-green-200 dark:hover:border-green-700 shadow-md">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-50 text-green-600">
+                    <i class="fas fa-check-circle text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Retournés</p>
+                    <p class="text-3xl font-extrabold text-gray-900 dark:text-white">{{ historique|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative overflow-hidden rounded-2xl p-6 bg-white/70 dark:bg-gray-800/60 backdrop-blur-sm border border-transparent hover:border-red-200 dark:hover:border-red-700 shadow-md">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-50 text-red-600">
+                    <i class="fas fa-exclamation-triangle text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">En retard</p>
+                    <p class="text-3xl font-extrabold text-gray-900 dark:text-white">
+                        {{ empruntsEnCours|filter(e => e.estEnRetard)|length }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emprunts en cours -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Emprunts en cours</h2>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for emprunt in empruntsEnCours %}
+                <div class="p-6 transition-transform transform hover:-translate-y-1 hover:shadow-xl bg-white/60 dark:bg-gray-800/60 backdrop-blur rounded-2xl">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                                <i class="fas fa-book text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ emprunt.livre.titre }}</h3>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Emprunté le {{ emprunt.dateEmprunt|date('d/m/Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right mr-2">
+                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">Retour prévu</div>
+                                <div class="text-lg font-semibold {% if emprunt.estEnRetard %}text-red-600{% else %}text-gray-900 dark:text-white{% endif %}">
+                                    {{ emprunt.dateRetourPrevue|date('d/m/Y') }}
+                                </div>
+                                {% if emprunt.estEnRetard %}
+                                    <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        En retard
+                                    </div>
+                                {% else %}
+                                    <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        {{ emprunt.getJoursRestants }} jours
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-center gap-2 lg:flex-col lg:items-end">
+                                {% if not emprunt.estEnRetard %}
+                                    <form method="post" action="{{ path('app_emprunt_prolonger', {'id': emprunt.id}) }}" class="hidden" id="prolonger-form-{{ emprunt.id }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('prolonger' ~ emprunt.id) }}">
+                                    </form>
+                                    <button onclick="document.getElementById('prolonger-form-{{ emprunt.id }}').submit()"
+                                            class="inline-flex items-center justify-center w-10 h-10 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+                                            title="Prolonger" aria-label="Prolonger">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </button>
+                                {% endif %}
+
+                                <a href="{{ path('app_emprunt_show', {'id': emprunt.id}) }}"
+                                   class="inline-flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                   title="Voir" aria-label="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <button onclick="openEmpruntDeleteModal({{ emprunt.id }})"
+                                        class="inline-flex items-center justify-center w-10 h-10 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                                        title="Supprimer" aria-label="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            {{ include('emprunt/_delete_form_hidden.html.twig', {'emprunt': emprunt}) }}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-book-open text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                    <p class="text-gray-500 dark:text-gray-400">Aucun emprunt en cours</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Historique -->
+    {% if historique|length > 0 %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Historique des emprunts</h2>
+            </div>
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for emprunt in historique %}
+                    <div class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-lg flex items-center justify-center text-white">
+                                    <i class="fas fa-history text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ emprunt.livre.titre }}</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Retourné le {{ emprunt.dateRetourEffective|date('d/m/Y') }}
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="{{ path('app_emprunt_show', {'id': emprunt.id}) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-eye mr-1"></i>
+                                Voir détails
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+<!-- Modal de suppression emprunt -->
+<div id="empruntDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-4">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Supprimer l'emprunt</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.</p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="closeEmpruntDeleteModal()" class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Annuler</button>
+                <form id="empruntDeleteForm" method="post" class="inline">
+                    <input type="hidden" name="_token" value="">
+                    <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">Confirmer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+function openEmpruntDeleteModal(empruntId) {
+    const modal = document.getElementById('empruntDeleteModal');
+    const form = document.getElementById('empruntDeleteForm');
+    const csrfToken = document.querySelector(`[data-emprunt-id="${empruntId}"]`)?.dataset.token;
+
+    form.action = `/emprunt/${empruntId}`;
+    form.querySelector('input[name="_token"]').value = csrfToken;
+    modal.classList.remove('hidden');
+}
+
+function closeEmpruntDeleteModal() {
+    const modal = document.getElementById('empruntDeleteModal');
+    modal.classList.add('hidden');
+}
+
+// Fermer la modal en cliquant à l'extérieur
+document.addEventListener('click', function(e){
+    const modal = document.getElementById('empruntDeleteModal');
+    if (!modal) return;
+    if (e.target === modal) closeEmpruntDeleteModal();
+});
+</script>
+<style>
+.transition-colors { transition: background-color 0.2s ease, color 0.2s ease; }
+</style>
+{% endblock %}
+{% endblock %}

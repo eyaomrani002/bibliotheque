@@ -1,0 +1,13 @@
+<h2>Réponse à votre message</h2>
+
+<p>Bonjour {{ contact.prenom }},</p>
+
+<p>Merci pour votre message envoyé le {{ contact.dateEnvoi ? contact.dateEnvoi|date('Y-m-d H:i') : '' }}.</p>
+
+<p><strong>Objet :</strong> {{ contact.sujet }}</p>
+
+<h3>Réponse de l'administrateur :</h3>
+<div style="border:1px solid #eee;padding:10px;background:#fafafa">{{ contact.reponse|raw }}</div>
+
+<hr>
+<p>Ceci est un message automatique, ne pas répondre à cet e-mail.</p>

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel Éditeur{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        {# En-tête #}
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-6">
+            <h1 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-plus-circle mr-3 text-3xl"></i>
+                Créer un Nouvel Éditeur
+            </h1>
+            <p class="text-blue-100 mt-2">Ajoutez une nouvelle maison d'édition</p>
+        </div>
+
+        {# Contenu du formulaire #}
+        <div class="p-8">
+            {{ include('editeur/_form.html.twig', {'button_label': 'Créer l\'éditeur'}) }}
+            
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <a href="{{ path('app_editeur_index') }}" 
+                   class="text-gray-600 hover:text-gray-900 flex items-center transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

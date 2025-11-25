@@ -1,0 +1,113 @@
+{# templates/menuFront.html.twig — Nouveau design Tailwind #}
+<nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16 gap-4">
+      <!-- Left: logo + brand -->
+      <div class="flex items-center gap-3">
+        <a href="{{ path('app_accueil') }}" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow">
+            <i class="fas fa-book-open"></i>
+          </div>
+          <div class="hidden sm:block">
+            <div class="font-extrabold text-lg text-slate-800">Biblio</div>
+            <div class="text-xs text-slate-500">Symfony</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center: nav links (desktop) -->
+      <div class="hidden lg:flex lg:items-center lg:space-x-2">
+        {% for item in [
+          {route: 'app_accueil', icon: 'home', label: 'Accueil'},
+          {route: 'app_livre_index', icon: 'book', label: 'Livres'},
+          {route: 'app_auteur_index', icon: 'user-edit', label: 'Auteurs'},
+          {route: 'app_categorie_index', icon: 'tags', label: 'Catégories'},
+          {route: 'app_editeur_index', icon: 'building', label: 'Éditeurs'}
+        ] %}
+          <a href="{{ path(item.route) }}"
+             class="px-3 py-2 text-sm rounded-md transition-colors duration-150
+                    {% if app.request.get('_route') starts with item.route %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-700 hover:bg-indigo-50 hover:text-indigo-600{% endif %}">
+            <i class="fas fa-{{ item.icon }} mr-2"></i>{{ item.label }}
+          </a>
+        {% endfor %}
+      </div>
+
+      <!-- Right: search + auth -->
+      <div class="flex items-center gap-3">
+        <!-- Search (desktop only) -->
+        <div class="hidden md:flex items-center bg-gray-50 border border-gray-100 rounded-md px-2 py-1 shadow-sm">
+          <i class="fas fa-search text-gray-400 mr-2"></i>
+          <form action="{{ path('app_livre_index') }}" method="get" class="flex items-center">
+            <input name="q" type="search" placeholder="Rechercher un livre..." value="{{ app.request.get('q')|default('') }}"
+                   class="bg-transparent outline-none text-sm w-48 md:w-64" />
+          </form>
+        </div>
+
+        <!-- Auth area (desktop) -->
+        <div class="hidden lg:flex items-center space-x-3">
+          {% if app.user %}
+            <div class="text-sm text-slate-700">Bonjour, <strong>{{ app.user.prenom ?: (app.user.email|split('@')|first) }}</strong></div>
+            {% if is_granted('ROLE_ADMIN') %}
+              <a href="{{ path('admin') }}" class="px-3 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-md">Admin</a>
+            {% endif %}
+            <a href="{{ path('app_logout') }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-md">Déconnexion</a>
+          {% else %}
+            <a href="{{ path('app_login') }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-md">Connexion</a>
+            <a href="{{ path('app_register') }}" class="px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md">Inscription</a>
+          {% endif %}
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button id="navbarFrontToggle" aria-expanded="false" class="lg:hidden p-2 rounded-md text-slate-700 hover:bg-gray-100">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile panel -->
+  <div id="navbarFrontMobile" class="lg:hidden hidden bg-white border-t border-gray-100">
+    <div class="px-4 py-3 space-y-2">
+      {% for item in [
+        {route: 'app_accueil', icon: 'home', label: 'Accueil'},
+        {route: 'app_livre_index', icon: 'book', label: 'Livres'},
+        {route: 'app_auteur_index', icon: 'user-edit', label: 'Auteurs'},
+        {route: 'app_categorie_index', icon: 'tags', label: 'Catégories'},
+        {route: 'app_editeur_index', icon: 'building', label: 'Éditeurs'}
+      ] %}
+        <a href="{{ path(item.route) }}" class="flex items-center px-3 py-2 rounded-md text-sm text-slate-700 hover:bg-indigo-50 {% if app.request.get('_route') starts with item.route %}bg-indigo-50 text-indigo-600{% endif %}">
+          <i class="fas fa-{{ item.icon }} mr-3"></i>{{ item.label }}
+        </a>
+      {% endfor %}
+
+      <div class="pt-2 border-t border-gray-100">
+        {% if app.user %}
+          <div class="mb-2 text-sm text-slate-700">Bonjour, <strong>{{ app.user.prenom ?: (app.user.email|split('@')|first) }}</strong></div>
+          {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin') }}" class="block mb-2 px-3 py-2 rounded-md text-sm text-indigo-600 bg-indigo-50">Admin</a>
+          {% endif %}
+          <a href="{{ path('app_logout') }}" class="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-red-50">Déconnexion</a>
+        {% else %}
+          <a href="{{ path('app_login') }}" class="block mb-2 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-indigo-50">Connexion</a>
+          <a href="{{ path('app_register') }}" class="block px-3 py-2 rounded-md text-sm text-white bg-indigo-600 hover:bg-indigo-700">Inscription</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('click', function(e){
+      const btn = document.getElementById('navbarFrontToggle');
+      const panel = document.getElementById('navbarFrontMobile');
+      if (!btn || !panel) return;
+      if (e.target.closest('#navbarFrontToggle')) {
+        panel.classList.toggle('hidden');
+        btn.setAttribute('aria-expanded', panel.classList.contains('hidden') ? 'false' : 'true');
+      }
+      // close on outside click
+      if (!e.target.closest('#navbarFrontMobile') && !e.target.closest('#navbarFrontToggle')) {
+        if (!panel.classList.contains('hidden')) panel.classList.add('hidden');
+      }
+    });
+  </script>
+</nav>

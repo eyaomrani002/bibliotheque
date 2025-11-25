@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-indigo-50 py-12 px-4">
+    {% if app.user %}
+        {# Si déjà connecté #}
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all duration-300">
+            <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Vous êtes déjà connecté !</h2>
+            <p class="text-gray-600 mb-6">Connecté en tant que <strong>{{ app.user.userIdentifier }}</strong></p>
+            <a href="{{ path('app_logout') }}" 
+               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105">
+                <i class="fas fa-sign-out-alt mr-2"></i> Se déconnecter
+            </a>
+        </div>
+    {% else %}
+        {# Formulaire de connexion #}
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-md transform transition-all duration-300 hover:scale-105">
+            {# En-tête luxueux #}
+            <div class="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 px-8 py-8 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-white opacity-10 transform rotate-12"></div>
+                <i class="fas fa-crown text-5xl text-white mb-4 relative z-10 drop-shadow-lg"></i>
+                <h1 class="text-3xl font-bold text-white relative z-10 tracking-tight">Connexion</h1>
+                <p class="text-indigo-100 mt-2 relative z-10">Accédez à votre espace privilégié</p>
+            </div>
+
+            {# Messages d'erreur #}
+            {% if error %}
+                <div class="mx-6 mt-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4 text-red-700 flex items-center shadow-sm">
+                    <i class="fas fa-exclamation-triangle mr-3 text-xl flex-shrink-0"></i>
+                    <span class="text-sm">{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                </div>
+            {% endif %}
+
+            {# Formulaire #}
+            <div class="p-8">
+                <form method="post" class="space-y-6">
+                    {# CSRF Token #}
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    {# Champ Email avec icône #}
+                    <div class="space-y-2">
+                        <label for="username" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-envelope mr-2 text-indigo-500"></i> Email
+                        </label>
+                        <div class="relative">
+                            <input type="email" 
+                                   value="{{ last_username }}" 
+                                   name="_username" 
+                                   id="username" 
+                                   class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+                                   placeholder="votre@email.com"
+                                   autocomplete="email" 
+                                   required 
+                                   autofocus>
+                            <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    {# Champ Mot de passe avec icône #}
+                    <div class="space-y-2">
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-lock mr-2 text-indigo-500"></i> Mot de passe
+                        </label>
+                        <div class="relative">
+                            <input type="password" 
+                                   name="_password" 
+                                   id="password" 
+                                   class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+                                   placeholder="••••••••"
+                                   autocomplete="current-password" 
+                                   required>
+                            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    {# Options supplémentaires #}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input id="remember_me" name="_remember_me" type="checkbox" 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="remember_me" class="ml-2 block text-sm text-gray-700">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+
+                        {# 🔑 LIEN "MOT DE PASSE OUBLIÉ" AJOUTÉ ICI #}
+                        <a href="{{ path('app_forgot_password_request') }}" 
+                           class="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-all duration-200 inline-flex items-center group">
+                            <i class="fas fa-key mr-1"></i>
+                            Mot de passe oublié ?
+                            <i class="fas fa-arrow-right ml-1 text-xs transform transition-transform group-hover:translate-x-1"></i>
+                        </a>
+                    </div>
+
+                    {# Bouton Soumettre avec effet premium #}
+                    <button type="submit" 
+                            class="w-full px-8 py-3 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg transform transition-all duration-300 flex items-center justify-center space-x-2 hover:scale-105 active:scale-95">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Se connecter</span>
+                    </button>
+                </form>
+
+                {# Liens utils #}
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="grid grid-cols-1 gap-4 text-center">
+                        <p class="text-sm text-gray-600">
+                            Pas encore de compte ? 
+                            <a href="{{ path('app_register') }}" 
+                               class="text-indigo-600 hover:text-indigo-800 font-semibold transition-all duration-200 inline-flex items-center group">
+                                S'inscrire 
+                                <i class="fas fa-arrow-right ml-1 transform transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </p>
+                        
+                        {# Lien vers l'accueil #}
+                        <a href="{{ path('app_accueil') }}" 
+                           class="text-sm text-gray-500 hover:text-indigo-600 transition-all duration-200 inline-flex items-center justify-center group">
+                            <i class="fas fa-home mr-1"></i>
+                            Retour à l'accueil
+                            <i class="fas fa-arrow-right ml-1 text-xs transform transition-transform group-hover:translate-x-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

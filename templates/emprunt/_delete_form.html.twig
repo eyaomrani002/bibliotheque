@@ -1,0 +1,9 @@
+{# templates/emprunt/_delete_form.html.twig #}
+<form method="post" action="{{ path('app_emprunt_delete', {'id': emprunt.id}) }}" 
+      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.');"
+      class="inline">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ emprunt.id) }}">
+    <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md transition-colors" title="Supprimer">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>

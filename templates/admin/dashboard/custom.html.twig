@@ -1,0 +1,290 @@
+{# templates/admin/dashboard/custom.html.twig #}
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block content_title %}📊 Tableau de bord{% endblock %}
+
+{% block page_actions %}
+    <a href="#" class="btn btn-primary">
+        <i class="fas fa-download"></i> Exporter les stats
+    </a>
+{% endblock %}
+
+{% block main %}
+<!-- Cartes de statistiques principales -->
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title text-primary">📖 Livres</h5>
+                        <h2 class="text-primary">{{ stats.total_livres }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-book fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title text-success">👥 Utilisateurs</h5>
+                        <h2 class="text-success">{{ stats.total_utilisateurs }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title text-warning">📥 Emprunts actifs</h5>
+                        <h2 class="text-warning">{{ stats.emprunts_actifs }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-hand-holding fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card border-danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title text-danger">📧 Messages non lus</h5>
+                        <h2 class="text-danger">{{ stats.messages_non_lus }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-envelope fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activité récente -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>📚 Derniers emprunts</h5>
+            </div>
+            <div class="card-body">
+                {% if recentActivity.derniers_emprunts is empty %}
+                    <p class="text-muted">Aucun emprunt récent</p>
+                {% else %}
+                    <div class="list-group">
+                        {% for emprunt in recentActivity.derniers_emprunts %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ emprunt.livre.titre }}</h6>
+                                    <small>{{ emprunt.dateEmprunt|date('d/m/Y') }}</small>
+                                </div>
+                                <p class="mb-1">Par {{ emprunt.user.nomComplet }}</p>
+                                <span class="badge bg-{{ emprunt.statut == 'emprunté' ? 'warning' : 'success' }}">
+                                    {{ emprunt.statut }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>📧 Derniers messages</h5>
+            </div>
+            <div class="card-body">
+                {% if recentActivity.derniers_messages is empty %}
+                    <p class="text-muted">Aucun message récent</p>
+                {% else %}
+                    <div class="list-group">
+                        {% for message in recentActivity.derniers_messages %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ message.nomComplet }}</h6>
+                                    <small>{{ message.dateEnvoi|date('d/m/Y') }}</small>
+                                </div>
+                                <p class="mb-1 text-truncate">{{ message.sujet }}</p>
+                                <span class="badge bg-{{ message.estLu ? 'success' : 'danger' }}">
+                                    {{ message.estLu ? 'Lu' : 'Non lu' }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section graphiques SIMPLIFIÉE -->
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>📊 Top Livres Empruntés (Graphiques)</h5>
+            </div>
+            <div class="card-body">
+                <div id="chart-container-borrowed" style="min-height: 300px;">
+                    <canvas id="topBorrowedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>📊 Top Livres Wishlistés (Graphiques)</h5>
+            </div>
+            <div class="card-body">
+                <div id="chart-container-wishlisted" style="min-height: 300px;">
+                    <canvas id="topWishlistedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des tops -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6>🏆 Top 5 Livres Empruntés</h6>
+            </div>
+            <div class="card-body">
+                {% if stats.top_borrowed is not empty %}
+                    <ol class="mb-0">
+                        {% for item in stats.top_borrowed|slice(0, 5) %}
+                            {% if item.count > 0 %}
+                                <li class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>{{ item.titre }}</span>
+                                        <span class="badge bg-primary">{{ item.count }} emprunt(s)</span>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <p class="text-muted mb-0">Aucun emprunt enregistré</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6>💖 Top 5 Livres Wishlistés</h6>
+            </div>
+            <div class="card-body">
+                {% if stats.top_wishlisted is not empty %}
+                    <ol class="mb-0">
+                        {% for item in stats.top_wishlisted|slice(0, 5) %}
+                            {% if item.count > 0 %}
+                                <li class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>{{ item.titre }}</span>
+                                        <span class="badge bg-success">{{ item.count }} wishlist(s)</span>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <p class="text-muted mb-0">Aucun livre en wishlist</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <style>
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+    </style>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    <script>
+    (function(){
+        // Simple dynamic loader for Chart.js UMD with local fallback
+        function loadScript(src, onload, onerror){
+            var s = document.createElement('script'); s.src = src; s.async = true; s.onload = onload; s.onerror = onerror; document.head.appendChild(s);
+        }
+
+        var TOP_BORROWED = {{ stats.top_borrowed|json_encode|raw }};
+        var TOP_WISHLISTED = {{ stats.top_wishlisted|json_encode|raw }};
+
+        function initCharts(){
+            try{
+                if (typeof Chart === 'undefined'){
+                    console.error('initCharts: Chart is undefined');
+                    document.getElementById('chart-container-borrowed').innerHTML = '<div class="alert alert-warning">Chart.js n\'a pas pu être chargé.</div>';
+                    document.getElementById('chart-container-wishlisted').innerHTML = '<div class="alert alert-warning">Chart.js n\'a pas pu être chargé.</div>';
+                    return;
+                }
+
+                var filteredBorrowed = TOP_BORROWED.filter(function(i){ return i.count > 0; });
+                var filteredWish = TOP_WISHLISTED.filter(function(i){ return i.count > 0; });
+
+                if (filteredBorrowed.length > 0){
+                    try{
+                        var ctx = document.getElementById('topBorrowedChart').getContext('2d');
+                        new Chart(ctx, { type: 'bar', data:{ labels: filteredBorrowed.map(function(x){return x.titre;}), datasets:[{ label:"Nombre d'emprunts", data: filteredBorrowed.map(function(x){return x.count;}), backgroundColor:'#36A2EB' }] }, options:{ responsive:true, maintainAspectRatio:false } });
+                    }catch(e){ console.error('borrowed chart init failed', e); }
+                } else {
+                    document.getElementById('chart-container-borrowed').innerHTML = '<p class="text-muted">Aucune donnée d\'emprunt disponible pour les graphiques</p>';
+                }
+
+                if (filteredWish.length > 0){
+                    try{
+                        var ctx2 = document.getElementById('topWishlistedChart').getContext('2d');
+                        new Chart(ctx2, { type:'doughnut', data:{ labels: filteredWish.map(function(x){return x.titre;}), datasets:[{ data: filteredWish.map(function(x){return x.count;}), backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0'] }] }, options:{ responsive:true, maintainAspectRatio:false } });
+                    }catch(e){ console.error('wish chart init failed', e); }
+                } else {
+                    document.getElementById('chart-container-wishlisted').innerHTML = '<p class="text-muted">Aucune donnée de wishlist disponible pour les graphiques</p>';
+                }
+
+            }catch(err){ console.error('initCharts general error', err); }
+        }
+
+        // Use UMD build explicitly to avoid ES module import errors
+        var cdn = 'https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js';
+        var local = '{{ asset('vendor/chartjs/chart.umd.min.js') }}';
+
+        loadScript(cdn, function(){ console.log('Loaded Chart.js UMD from CDN'); initCharts(); }, function(){ console.warn('CDN failed, loading local fallback'); loadScript(local, function(){ console.log('Loaded local Chart.js UMD fallback'); initCharts(); }, function(){ console.error('Both CDN and local Chart.js failed to load'); initCharts(); }); });
+
+    })();
+    </script>
+{% endblock %}
